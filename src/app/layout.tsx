@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -16,6 +16,14 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-mono",
   display: "swap",
 });
+
+// 1️⃣ ضبط مقاسات الشاشات لجميع الهواتف والأجهزة اللوحية
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0B0F17",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://youssef-abdeltwab.dev"),
@@ -81,11 +89,16 @@ export default function RootLayout({
       className={`${jakarta.variable} ${jetbrains.variable} scroll-smooth`}
       suppressHydrationWarning
     >
-      <body className={`${jakarta.className} font-sans antialiased bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 selection:bg-amber-500/20 selection:text-amber-500`}>
+      <body className={`${jakarta.className} font-sans antialiased overflow-x-hidden bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 selection:bg-amber-500/20 selection:text-amber-500`}>
         <ThemeProvider>
-          <CursorSpotlight />
+          {/* إخفاء إضاءة الماوس على الموبايل والتابلت وتفعيلها فقط على الشاشات الكبيرة مع حماية اللمس */}
+          <div className="hidden lg:block pointer-events-none">
+            <CursorSpotlight />
+          </div>
           <CommandPalette />
-          {children}
+          <div className="relative w-full overflow-x-hidden">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

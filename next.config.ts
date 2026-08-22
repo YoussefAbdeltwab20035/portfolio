@@ -1,12 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 1️⃣ حماية وأمان: إخفاء هيدر Next.js لتصعيب تتبع تقنيات الموقع
+  // 1️⃣ تفعيل الضغط الفائق (Gzip/Brotli) لتخفيض حجم البيانات المنقولة
+  compress: true,
+
+  // 2️⃣ حماية وأمان: إخفاء هيدر Next.js لتصعيب تتبع تقنيات الموقع
   poweredByHeader: false,
 
-  // 2️⃣ تحسين الصور (Image Optimization) لدعم صيغ AVIF و WebP الخفيفة جداً
+  // 3️⃣ تحسين الصور الفائق + تفعيل الكاش الطويل (1 سنة) لدعم مئات الآلاف من الزوار
   images: {
     formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: "https",
@@ -23,22 +27,22 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // 3️⃣ مسح جُمل الـ console.log تلقائياً في النسخة النهائية (Production) لسرعة الأداء
+  // 4️⃣ مسح جُمل الـ console.log تلقائياً في النسخة النهائية
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
 
-  // 4️⃣ تسريع شحن مكتبات الأيقونات والأنيميشن (Tree Shaking & Package Optimization)
+  // 5️⃣ تسريع شحن مكتبات الأيقونات والأنيميشن (Tree Shaking & Package Optimization)
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 
-  // 5️⃣ التحكم في مكان مؤشر أدوات التطوير (Dev Indicators)
+  // 6️⃣ التحكم في مكان مؤشر أدوات التطوير
   devIndicators: {
     position: "bottom-right",
   },
 
-  // 6️⃣ إضافة Security Headers لحماية موقعك من هجمات XSS و Clickjacking
+  // 7️⃣ دمج Security Headers + ترويسات التخزين المؤقت الدائمة (Edge Cache Headers)
   async headers() {
     return [
       {
@@ -59,6 +63,15 @@ const nextConfig: NextConfig = {
           {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
+          },
+        ],
+      },
+      {
+        source: "/:all*(svg|jpg|png|webp|avif|woff2|woff)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
