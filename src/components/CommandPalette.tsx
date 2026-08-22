@@ -208,10 +208,11 @@ export default function CommandPalette() {
 
   return (
     <>
+      {/* يظهر الزر السفلي فقط على شاشات الديسكتوب (md وأعلى) ويختفي على الهواتف والتابلت لمنع حجب اللمس */}
       <button
         type="button"
         onClick={openPalette}
-        className="fixed bottom-6 right-6 z-40 px-4 py-2.5 rounded-full border border-slate-300 dark:border-slate-800 bg-white/90 dark:bg-[#0B0F17]/90 backdrop-blur-md text-slate-800 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white text-xs font-semibold flex items-center gap-2 shadow-xl hover:border-slate-400 dark:hover:border-slate-700 transition-all active:scale-95"
+        className="hidden md:flex fixed bottom-6 right-6 z-40 px-4 py-2.5 rounded-full border border-slate-300 dark:border-slate-800 bg-white/90 dark:bg-[#0B0F17]/90 backdrop-blur-md text-slate-800 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white text-xs font-semibold items-center gap-2 shadow-xl hover:border-slate-400 dark:hover:border-slate-700 transition-all active:scale-95 pointer-events-auto"
       >
         <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
         <span>Search / Commands</span>
@@ -222,7 +223,7 @@ export default function CommandPalette() {
 
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 pt-16 sm:pt-4">
+          <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 pt-16 sm:pt-4 pointer-events-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -236,7 +237,7 @@ export default function CommandPalette() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111622] p-4 text-slate-900 dark:text-slate-200 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111622] p-4 text-slate-900 dark:text-slate-200 shadow-2xl overflow-hidden pointer-events-auto"
             >
               <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3 px-2">
                 <Search className="w-4 h-4 text-slate-400" />
