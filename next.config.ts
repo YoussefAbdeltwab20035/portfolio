@@ -1,5 +1,19 @@
 import type { NextConfig } from "next";
 
+const cspHeader = `
+  default-src 'self';
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' blob: data: https://github.com https://raw.githubusercontent.com https://images.unsplash.com https:;
+  font-src 'self' https://fonts.gstatic.com data:;
+  connect-src 'self' https://vitals.vercel-insights.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  upgrade-insecure-requests;
+`;
+
 const nextConfig: NextConfig = {
   // 1️⃣ تفعيل الضغط الفائق (Gzip/Brotli) لتخفيض حجم البيانات المنقولة
   compress: true,
@@ -48,6 +62,10 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
+          {
+            key: "Content-Security-Policy",
+            value: cspHeader.replace(/\s{2,}/g, " ").trim(),
+          },
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
