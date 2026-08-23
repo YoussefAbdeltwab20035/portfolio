@@ -3,7 +3,8 @@ import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const body = await req.json();
+    const { email, message } = body;
 
     if (!email || !email.includes("@")) {
       return NextResponse.json(
@@ -12,8 +13,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // التحقق من وجود متغيرات البيئة
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error("Missing EMAIL_USER or EMAIL_PASS environment variables");
+      return NextResponse.json(
+        { error: "Email configuration missing on server" },
+        { status: 500 }
+      );
+    }
+
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -21,26 +33,40 @@ export async function POST(req: Request) {
     });
 
     const mailOptions = {
-      from: `"Portfolio Alert" <${process.env.EMAIL_USER}>`,
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
       replyTo: email,
-      subject: `New Client Connection Request: ${email}`,
+      subject: `💼 New Client Message from: ${email}`,
       html: `
-        <div style="font-family: sans-serif; padding: 24px; background: #0B0F17; color: #ffffff; border-radius: 16px;">
-          <h2 style="color: #f59e0b; margin-top: 0;">🚀 New Client Lead</h2>
-          <p style="font-size: 15px; color: #cbd5e1;">A visitor just submitted their email through your portfolio:</p>
-          <div style="background: #1e293b; padding: 16px; border-radius: 10px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.1);">
-            <span style="color: #94a3b8; font-size: 13px;">Client Email:</span><br/>
-            <a href="mailto:${email}" style="color: #38bdf8; font-size: 18px; font-weight: bold; text-decoration: none;">${email}</a>
+        <div style="font-family: Arial, sans-serif; padding: 24px; background: #0B0F17; color: #ffffff; border-radius: 16px; max-width: 600px; margin: 0 auto; border: 1px solid #1e293b;">
+          <h2 style="color: #f59e0b; margin-top: 0; font-size: 20px;">🚀 New Portfolio Inquiry</h2>
+          
+          <div style="background: #151d2a; padding: 16px; border-radius: 12px; margin: 16px 0; border: 1px solid rgba(255,255,255,0.08);">
+            <p style="margin: 0 0 6px 0; color: #94a3b8; font-size: 13px; font-weight: bold;">Sender Email:</p>
+            <a href="mailto:${email}" style="color: #38bdf8; font-size: 16px; font-weight: bold; text-decoration: none;">${email}</a>
           </div>
-          <p style="font-size: 12px; color: #64748b; margin-bottom: 0;">Hit "Reply" directly in your email client to start the conversation.</p>
+
+          ${
+            message
+              ? `
+          <div style="background: #151d2a; padding: 16px; border-radius: 12px; margin: 16px 0; border: 1px solid rgba(255,255,255,0.08);">
+            <p style="margin: 0 0 6px 0; color: #94a3b8; font-size: 13px; font-weight: bold;">Message Content:</p>
+            <p style="margin: 0; color: #e2e8f0; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${message}</p>
+          </div>
+          `
+              : ""
+          }
+
+          <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); pt: 12px;">
+            You can directly click "Reply" in your email client to respond to this lead.
+          </p>
         </div>
       `,
     };
 
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "Email sent successfully" });
   } catch (error) {
     console.error("Nodemailer error:", error);
     return NextResponse.json(
