@@ -86,11 +86,12 @@ export default function Hero() {
         >
           <Image
             src="/hero-clean.png"
-            alt="Youssef Prisma 3D Cinematic"
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 1550px"
-            className="object-cover object-center"
+            alt="Portfolio Hero Avatar"
+            width={400}
+            height={400}
+            priority={true}
+            sizes="(max-width: 768px) 100vw, 440px"
+            className="object-cover object-center w-full h-full"
           />
         </motion.div>
 
@@ -115,6 +116,7 @@ export default function Hero() {
               target="_blank"
               rel="noopener noreferrer"
               download="Youssef_Abdeltwab_CV.pdf"
+              aria-label="Download CV"
               className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-black/60 hover:bg-black/80 active:bg-black backdrop-blur-xl border border-white/15 text-white/90 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
             >
               <Download className="w-3.5 h-3.5 text-amber-400" />
@@ -124,6 +126,7 @@ export default function Hero() {
             <button
               type="button"
               onClick={handleCopyEmail}
+              aria-label="Copy Email Address"
               className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 active:bg-black backdrop-blur-xl border border-white/15 text-white/90 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
               title="Copy Email"
             >
@@ -161,6 +164,7 @@ export default function Hero() {
             <a
               href="#projects"
               onClick={scrollToProjects}
+              aria-label="Explore Projects Section"
               className="inline-flex items-center gap-2.5 pl-4 sm:pl-6 pr-2 py-1.5 sm:py-2 rounded-full bg-[#EAE5D9] hover:bg-white active:bg-slate-200 text-[#0A0D14] text-xs sm:text-sm font-bold tracking-tight transition-all duration-300 shadow-2xl active:scale-95 cursor-pointer pointer-events-auto"
             >
               <span>Explore Projects</span>

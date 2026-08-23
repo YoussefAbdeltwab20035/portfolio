@@ -111,6 +111,7 @@ export default function Navbar() {
           <button
             type="button"
             onPointerDown={(e) => handleNavClick("home", e)}
+            aria-label="Go to home"
             className="flex items-center gap-3 group cursor-pointer shrink-0 bg-transparent border-0 p-0 text-left select-none"
           >
             <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-slate-200 dark:border-white/20 bg-slate-900 shadow-sm group-hover:border-amber-500 transition-colors pointer-events-none">
@@ -137,10 +138,11 @@ export default function Navbar() {
                   key={item.id}
                   type="button"
                   onPointerDown={(e) => handleNavClick(item.id, e)}
-                  className={`relative px-4 py-1.5 text-xs font-semibold transition-colors duration-150 rounded-full cursor-pointer select-none bg-transparent border-0 ${
+                  aria-label={`Navigate to ${item.label}`}
+                  className={`relative px-4 py-1.5 text-xs font-semibold transition-colors duration-150 rounded-full cursor-pointer select-none border-0 ${
                     isActive
                       ? "text-slate-900 dark:text-[#0A0D14] bg-white dark:bg-[#EAE5D9] shadow-sm"
-                      : "text-slate-600 hover:text-slate-950 dark:text-[#D8D3C8]/70 dark:hover:text-white"
+                      : "text-slate-600 hover:text-slate-950 dark:text-[#D8D3C8]/70 dark:hover:text-white bg-transparent"
                   }`}
                 >
                   <span className="pointer-events-none">{item.label}</span>
@@ -169,7 +171,7 @@ export default function Navbar() {
             <button
               type="button"
               onPointerDown={handleToggleMenu}
-              aria-label="Open Navigation Menu"
+              aria-label={mobileMenuOpen ? "Close Navigation Menu" : "Open Navigation Menu"}
               className="md:hidden w-10 h-10 rounded-full bg-slate-200 dark:bg-[#151921] hover:bg-slate-300 dark:hover:bg-[#1E232E] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-800 dark:text-[#D8D3C8] shadow-sm cursor-pointer select-none"
             >
               {mobileMenuOpen ? (
@@ -192,6 +194,7 @@ export default function Navbar() {
                 key={item.id}
                 type="button"
                 onPointerDown={(e) => handleNavClick(item.id, e)}
+                aria-label={`Navigate to ${item.label}`}
                 className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-semibold transition-colors cursor-pointer select-none border-0 ${
                   isActive
                     ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold"
