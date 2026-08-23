@@ -1,15 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { 
-  Download, 
-  Mail, 
-  Check, 
-  Copy, 
-  ArrowRight 
-} from "lucide-react";
+import { Download, Mail, Check, Copy, ArrowRight } from "lucide-react";
 import { PORTFOLIO_DATA } from "@/data/portfolioData";
 
 export default function Hero() {
@@ -18,9 +12,23 @@ export default function Hero() {
 
   const [copied, setCopied] = useState(false);
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setIsDesktop(window.innerWidth >= 1024);
+    });
+
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
+    if (!isDesktop || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left - rect.width / 2) / 45;
     const y = (e.clientY - rect.top - rect.height / 2) / 45;
@@ -28,10 +36,12 @@ export default function Hero() {
   };
 
   const handleMouseLeave = () => {
-    setMouseOffset({ x: 0, y: 0 });
+    if (isDesktop) setMouseOffset({ x: 0, y: 0 });
   };
 
-  const handleCopyEmail = () => {
+  const handleCopyEmail = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (personal.email) {
       navigator.clipboard.writeText(personal.email);
       setCopied(true);
@@ -50,44 +60,48 @@ export default function Hero() {
   };
 
   return (
-    <section 
-      id="home" 
-      className="relative w-full pt-28 pb-10 px-4 sm:px-6 max-w-[1550px] mx-auto flex items-center justify-center overflow-hidden"
+    <section
+      id="home"
+      className="relative w-full pt-20 sm:pt-28 pb-4 sm:pb-6 px-3 sm:px-6 max-w-[1550px] mx-auto flex items-center justify-center pointer-events-auto overflow-hidden"
     >
-      <motion.div
+      <div
         ref={containerRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-full min-h-[750px] sm:min-h-[820px] lg:h-[88vh] max-h-[940px] rounded-[36px] sm:rounded-[48px] overflow-hidden border border-slate-200 dark:border-white/[0.12] shadow-xl dark:shadow-[0_25px_80px_rgba(0,0,0,0.7)] flex flex-col justify-between p-6 sm:p-12 lg:p-14 select-none group bg-slate-900 dark:bg-[#0A0D14]"
+        className="relative w-full min-h-[480px] sm:min-h-[600px] lg:h-[86vh] max-h-[920px] rounded-[24px] sm:rounded-[44px] overflow-hidden border border-slate-200 dark:border-white/[0.12] shadow-xl dark:shadow-[0_25px_80px_rgba(0,0,0,0.7)] flex flex-col justify-between p-4 sm:p-10 lg:p-14 group bg-slate-900 dark:bg-[#0A0D14]"
       >
+        {/* الصورة الخلفية مع تأثير الحركة للديسكتوب فقط */}
         <motion.div
-          animate={{
-            x: mouseOffset.x * -1.15,
-            y: mouseOffset.y * -1.15,
-            scale: 1.05,
-          }}
+          animate={
+            isDesktop
+              ? {
+                  x: mouseOffset.x * -1.15,
+                  y: mouseOffset.y * -1.15,
+                  scale: 1.05,
+                }
+              : { x: 0, y: 0, scale: 1 }
+          }
           transition={{ type: "spring", stiffness: 90, damping: 20 }}
-          className="absolute inset-0 w-full h-full pointer-events-none"
+          className="absolute inset-0 w-full h-full pointer-events-none z-0"
         >
           <Image
             src="/hero-clean.png"
             alt="Youssef Prisma 3D Cinematic"
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 1024px) 100vw, 1550px"
             className="object-cover object-center"
           />
         </motion.div>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/40 dark:from-black/85 dark:via-black/15 dark:to-black/35 pointer-events-none" />
-        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-slate-950/50 dark:from-black/50 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-slate-950/80 dark:from-black/75 to-transparent pointer-events-none" />
+        {/* تدرجات الإضاءة والقراءة */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-slate-950/40 dark:from-black/90 dark:via-black/30 dark:to-black/40 pointer-events-none z-10" />
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-slate-950/60 dark:from-black/60 to-transparent pointer-events-none z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-3/5 bg-gradient-to-t from-slate-950/95 dark:from-black/90 to-transparent pointer-events-none z-10" />
 
-        <div className="relative z-10 flex items-center justify-between w-full">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/15 text-xs font-medium text-white/90 shadow-md">
+        {/* الشريط العلوي للـ Hero */}
+        <div className="relative z-30 flex items-center justify-between w-full pointer-events-auto">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/15 text-[10px] sm:text-xs font-medium text-white/90 shadow-md">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -101,17 +115,17 @@ export default function Hero() {
               target="_blank"
               rel="noopener noreferrer"
               download="Youssef_Abdeltwab_CV.pdf"
-              className="px-3.5 py-1.5 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-xl border border-white/15 text-white/90 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+              className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-black/60 hover:bg-black/80 active:bg-black backdrop-blur-xl border border-white/15 text-white/90 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
             >
               <Download className="w-3.5 h-3.5 text-amber-400" />
               <span>CV</span>
             </a>
 
             <button
-              onClick={handleCopyEmail}
-              className="p-2 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-xl border border-white/15 text-white/90 transition-all shadow-md active:scale-95 cursor-pointer"
-              title="Copy Email"
               type="button"
+              onClick={handleCopyEmail}
+              className="p-1.5 sm:p-2 rounded-full bg-black/60 hover:bg-black/80 active:bg-black backdrop-blur-xl border border-white/15 text-white/90 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
+              title="Copy Email"
             >
               {copied ? (
                 <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold px-1">
@@ -128,50 +142,35 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end w-full pt-10">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            style={{
-              transform: `translate3d(${mouseOffset.x * 0.75}px, ${mouseOffset.y * 0.75}px, 0)`,
-            }}
-            className="lg:col-span-7 flex items-baseline tracking-tighter"
-          >
-            <h1 className="text-[4.5rem] sm:text-[6.8rem] md:text-[8.5rem] lg:text-[9.8rem] xl:text-[11.2rem] font-bold text-[#EAE5D9] leading-[0.85] drop-shadow-[0_15px_40px_rgba(0,0,0,0.85)] font-sans">
+        {/* النصوص والأزرار السفلية */}
+        <div className="relative z-30 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-end w-full pt-4 pointer-events-auto">
+          <div className="lg:col-span-7 flex items-baseline tracking-tighter">
+            <h1 className="text-[3.2rem] xs:text-[4.2rem] sm:text-[6.5rem] md:text-[8rem] lg:text-[9.5rem] xl:text-[11rem] font-bold text-[#EAE5D9] leading-[0.9] sm:leading-[0.85] drop-shadow-[0_15px_40px_rgba(0,0,0,0.85)] font-sans select-none">
               Youssef
             </h1>
-            <span className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light text-amber-400 ml-1 sm:ml-2">
+            <span className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-light text-amber-400 ml-1">
               *
             </span>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="lg:col-span-5 flex flex-col items-start lg:items-end gap-6 text-left lg:text-right pb-4"
-          >
+          <div className="lg:col-span-5 flex flex-col items-start lg:items-end gap-3.5 sm:gap-5 text-left lg:text-right pb-1 pointer-events-auto">
             <p className="text-[#D8D3C8] text-xs sm:text-sm lg:text-[14px] xl:text-[15px] font-normal leading-relaxed max-w-md drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)]">
-              {personal.bio || 
-                "Computer Science student and Full-Stack Developer specializing in building high-performance web applications, scalable backend microservices, and modern UI architectures using MERN Stack, Next.js, and TypeScript."}
+              {personal.bio}
             </p>
 
             <a
               href="#projects"
               onClick={scrollToProjects}
-              className="group inline-flex items-center gap-4 pl-7 pr-2 py-2 rounded-full bg-[#EAE5D9] hover:bg-white text-[#0A0D14] text-xs sm:text-sm font-bold tracking-tight transition-all duration-300 shadow-2xl hover:scale-105 active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-2.5 pl-4 sm:pl-6 pr-2 py-1.5 sm:py-2 rounded-full bg-[#EAE5D9] hover:bg-white active:bg-slate-200 text-[#0A0D14] text-xs sm:text-sm font-bold tracking-tight transition-all duration-300 shadow-2xl active:scale-95 cursor-pointer pointer-events-auto"
             >
               <span>Explore Projects</span>
-              <div className="w-8 h-8 rounded-full bg-[#0A0D14] text-[#EAE5D9] flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
-                <ArrowRight className="w-4 h-4" />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#0A0D14] text-[#EAE5D9] flex items-center justify-center">
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </a>
-          </motion.div>
+          </div>
         </div>
-
-        <div className="relative z-10 w-full hidden sm:block h-2" />
-      </motion.div>
+      </div>
     </section>
   );
 }

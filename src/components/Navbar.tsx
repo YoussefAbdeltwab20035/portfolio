@@ -1,49 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { Search, Moon, Sun, Menu, X } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Moon, Sun, Menu, X } from "lucide-react";
 import { PORTFOLIO_DATA } from "@/data/portfolioData";
 
-const smoothScrollTo = (targetY: number, duration: number = 700) => {
-  if (typeof window === "undefined") return;
-
-  const startY = window.scrollY;
-  const difference = targetY - startY;
-  const startTime = performance.now();
-
-  const easeInOutCubic = (t: number) =>
-    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-  const step = (currentTime: number) => {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easedProgress = easeInOutCubic(progress);
-
-    window.scrollTo(0, startY + difference * easedProgress);
-
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    }
-  };
-
-  requestAnimationFrame(step);
-};
+const emptySubscribe = () => () => {};
 
 export default function Navbar() {
   const { personal } = PORTFOLIO_DATA;
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    if ("scrollRestoration" in history) {
-      history.scrollRestoration = "manual";
-    }
-    window.scrollTo(0, 0);
-
     const handleScroll = () => {
       setScrolled(window.scrollY > 25);
 
@@ -72,34 +51,42 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleTheme = () => {
-    const isCurrentlyDark = document.documentElement.classList.contains("dark");
-    if (isCurrentlyDark) {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    } else {
+  const handleToggleTheme = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    const currentlyDark = document.documentElement.classList.contains("dark");
+    const nextTheme = currentlyDark ? "light" : "dark";
+
+    if (nextTheme === "dark") {
       document.documentElement.classList.add("dark");
-      setIsDark(true);
+    } else {
+      document.documentElement.classList.remove("dark");
     }
+
+    setTheme(nextTheme);
   };
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault();
+  const handleToggleMenu = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    setMobileMenuOpen((prev) => !prev);
+  };
+
+  const handleNavClick = (id: string, e?: React.PointerEvent) => {
+    if (e) e.stopPropagation();
     setActiveSection(id);
     setMobileMenuOpen(false);
 
     if (id === "home") {
-      smoothScrollTo(0);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     const element = document.getElementById(id);
     if (element) {
-      const offset = 80;
-      const targetY = element.getBoundingClientRect().top + window.scrollY - offset;
-      smoothScrollTo(targetY);
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+
+  const isDarkMode = mounted ? (resolvedTheme || theme) === "dark" : true;
 
   const navItems = [
     { label: "Home", id: "home" },
@@ -111,141 +98,112 @@ export default function Navbar() {
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/80 dark:bg-[#07090E]/80 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/[0.08] py-3 shadow-md dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
-          : "bg-transparent py-4 sm:py-5"
-      }`}
-    >
-      <div className="max-w-[1550px] mx-auto px-4 sm:px-6 flex items-center justify-between">
-        {/* الشعار والاسم */}
-        <motion.a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            smoothScrollTo(0);
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-3 group cursor-pointer z-50 pointer-events-auto"
-        >
-          <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-slate-200 dark:border-white/20 bg-slate-900 shadow-sm group-hover:border-amber-500 transition-colors">
-            <Image
-              src="/logo.png"
-              alt="Youssef Logo"
-              fill
-              sizes="36px"
-              priority
-              className="object-cover"
-            />
-          </div>
-          <span className="font-bold text-slate-900 dark:text-[#EAE5D9] tracking-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors hidden sm:inline text-sm">
-            {personal.name}
-          </span>
-        </motion.a>
-
-        {/* كبسولة التنقل للشاشات المتوسطة والكبيرة */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-100/90 dark:bg-black/40 backdrop-blur-xl px-2 py-1 rounded-full border border-slate-200 dark:border-white/15 shadow-sm dark:shadow-2xl pointer-events-auto">
-          {navItems.map((item) => {
-            const isActive = activeSection === item.id;
-            return (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                onClick={(e) => handleNavClick(e, item.id)}
-                className={`relative px-4 py-1.5 text-xs font-semibold transition-all duration-300 rounded-full ${
-                  isActive
-                    ? "text-slate-900 dark:text-[#0A0D14]"
-                    : "text-slate-600 hover:text-slate-950 dark:text-[#D8D3C8]/70 dark:hover:text-white"
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeNavTab"
-                    transition={{
-                      type: "spring",
-                      stiffness: 380,
-                      damping: 30,
-                    }}
-                    className="absolute inset-0 bg-white dark:bg-[#EAE5D9] rounded-full shadow-md -z-10"
-                  />
-                )}
-                {item.label}
-              </a>
-            );
-          })}
-        </nav>
-
-        {/* أدوات التحكم (الثيم + البحث + زر قائمة الموبايل) */}
-        <div className="flex items-center gap-2 z-50 pointer-events-auto">
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-colors duration-200 ${
+          scrolled
+            ? "bg-white dark:bg-[#07090E] border-b border-slate-200 dark:border-white/10 py-3 shadow-md"
+            : "bg-transparent py-4 sm:py-5"
+        }`}
+      >
+        <div className="max-w-[1550px] mx-auto px-4 sm:px-6 flex items-center justify-between">
+          {/* Logo */}
           <button
             type="button"
-            onClick={toggleTheme}
-            aria-label="Toggle Theme"
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-black/40 dark:hover:bg-black/70 backdrop-blur-xl border border-slate-200 dark:border-white/15 flex items-center justify-center text-slate-700 hover:text-amber-600 dark:text-[#D8D3C8] dark:hover:text-amber-400 transition-all shadow-sm active:scale-95 cursor-pointer"
+            onPointerDown={(e) => handleNavClick("home", e)}
+            className="flex items-center gap-3 group cursor-pointer shrink-0 bg-transparent border-0 p-0 text-left select-none"
           >
-            {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-slate-200 dark:border-white/20 bg-slate-900 shadow-sm group-hover:border-amber-500 transition-colors pointer-events-none">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={36}
+                height={36}
+                priority
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="font-bold text-slate-900 dark:text-[#EAE5D9] tracking-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors hidden sm:inline text-sm pointer-events-none">
+              {personal.name}
+            </span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              window.dispatchEvent(
-                new KeyboardEvent("keydown", { key: "k", metaKey: true, ctrlKey: true })
-              );
-            }}
-            className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-black/40 dark:hover:bg-black/70 backdrop-blur-xl border border-slate-200 dark:border-white/15 text-xs font-semibold text-slate-700 dark:text-[#D8D3C8] transition-all shadow-sm active:scale-95 cursor-pointer"
-          >
-            <Search className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            <span>Search</span>
-            <kbd className="px-1.5 py-0.5 text-[10px] bg-slate-200 dark:bg-white/10 rounded-full border border-slate-300 dark:border-white/10 font-mono text-slate-600 dark:text-[#D8D3C8]/80">
-              ⌘K
-            </kbd>
-          </button>
-
-          {/* زر فتح قائمة الموبايل والتابلت */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-            aria-label="Open Navigation Menu"
-            className="md:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-black/40 dark:hover:bg-black/70 backdrop-blur-xl border border-slate-200 dark:border-white/15 flex items-center justify-center text-slate-700 dark:text-[#D8D3C8] transition-all shadow-sm active:scale-95 cursor-pointer"
-          >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {/* قائمة الموبايل المنسدلة للتنقل السلس */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-full left-0 right-0 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-2xl border-b border-slate-200 dark:border-slate-800 p-4 shadow-2xl flex flex-col gap-2 z-40 pointer-events-auto"
-          >
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-black/60 px-2 py-1 rounded-full border border-slate-200 dark:border-white/15 shadow-sm">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
-                <a
+                <button
                   key={item.id}
-                  href={`#${item.id}`}
-                  onClick={(e) => handleNavClick(e, item.id)}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  type="button"
+                  onPointerDown={(e) => handleNavClick(item.id, e)}
+                  className={`relative px-4 py-1.5 text-xs font-semibold transition-colors duration-150 rounded-full cursor-pointer select-none bg-transparent border-0 ${
                     isActive
-                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
-                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                      ? "text-slate-900 dark:text-[#0A0D14] bg-white dark:bg-[#EAE5D9] shadow-sm"
+                      : "text-slate-600 hover:text-slate-950 dark:text-[#D8D3C8]/70 dark:hover:text-white"
                   }`}
                 >
-                  {item.label}
-                </a>
+                  <span className="pointer-events-none">{item.label}</span>
+                </button>
               );
             })}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+          </nav>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            {/* Theme Button */}
+            <button
+              type="button"
+              onPointerDown={handleToggleTheme}
+              aria-label="Toggle Theme"
+              className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#151921] hover:bg-slate-300 dark:hover:bg-[#1E232E] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-800 dark:text-[#D8D3C8] shadow-sm cursor-pointer select-none"
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-amber-400 pointer-events-none" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-700 pointer-events-none" />
+              )}
+            </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              type="button"
+              onPointerDown={handleToggleMenu}
+              aria-label="Open Navigation Menu"
+              className="md:hidden w-10 h-10 rounded-full bg-slate-200 dark:bg-[#151921] hover:bg-slate-300 dark:hover:bg-[#1E232E] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-800 dark:text-[#D8D3C8] shadow-sm cursor-pointer select-none"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5 text-amber-500 pointer-events-none" />
+              ) : (
+                <Menu className="w-5 h-5 text-slate-900 dark:text-white pointer-events-none" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed top-[64px] left-0 right-0 z-[9999] bg-white dark:bg-[#07090E] border-b border-slate-200 dark:border-white/10 p-4 shadow-2xl flex flex-col gap-2">
+          {navItems.map((item) => {
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onPointerDown={(e) => handleNavClick(item.id, e)}
+                className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-semibold transition-colors cursor-pointer select-none border-0 ${
+                  isActive
+                    ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold"
+                    : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 bg-transparent"
+                }`}
+              >
+                <span className="pointer-events-none">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }

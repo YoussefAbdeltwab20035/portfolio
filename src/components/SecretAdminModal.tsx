@@ -40,7 +40,6 @@ export default function SecretAdminModal() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // إحداثيات تأثير الـ 3D Parallax التفاعلي
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
   const artCardRef = useRef<HTMLDivElement>(null);
@@ -84,17 +83,25 @@ export default function SecretAdminModal() {
     setLoading(false);
   }, []);
 
-  // الاستماع لاختصار لوحة المفاتيح: Ctrl + Shift + A
+  // الاستماع لاختصار لوحة المفاتيح: Ctrl + Shift + M والحدث المخصص حصراً دون التأثير على البحث
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "A" || e.key === "a")) {
+      // السماح باختصار Ctrl + Shift + M فقط لفتح الأدمن
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "M" || e.key === "m")) {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
     };
 
+    const handleOpenModal = () => setIsOpen(true);
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("open-admin-modal", handleOpenModal);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("open-admin-modal", handleOpenModal);
+    };
   }, []);
 
   useEffect(() => {
@@ -149,7 +156,7 @@ export default function SecretAdminModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-xl">
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-xl pointer-events-auto">
       <motion.div
         initial={{ opacity: 0, scale: 0.94, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -158,6 +165,7 @@ export default function SecretAdminModal() {
         className="w-full max-w-5xl max-h-[92vh] overflow-hidden rounded-[32px] bg-[#0A0E17] border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] relative flex flex-col"
       >
         <button
+          type="button"
           onClick={() => setIsOpen(false)}
           className="absolute top-5 right-5 z-40 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-white/10 transition-all cursor-pointer shadow-lg"
           aria-label="Close"
@@ -167,7 +175,7 @@ export default function SecretAdminModal() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[580px] h-full overflow-y-auto custom-scrollbar">
           
-          {/* الجانب الأيسر: الصورة التفاعلية بدقة فائقة ولمسة 3D */}
+          {/* الجانب الأيسر */}
           <div className="lg:col-span-5 p-4 sm:p-6 flex flex-col justify-center bg-gradient-to-b from-slate-950/80 to-[#070A12] relative overflow-hidden border-b lg:border-b-0 lg:border-r border-white/10">
             <div 
               ref={artCardRef}
@@ -227,7 +235,7 @@ export default function SecretAdminModal() {
             </div>
           </div>
 
-          {/* الجانب الأيمن: واجهة تسجيل الدخول / لوحة التحكم */}
+          {/* الجانب الأيمن */}
           <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center bg-[#0D121F]/90">
             {!isUnlocked ? (
               <div className="max-w-md mx-auto w-full py-4">
@@ -303,11 +311,12 @@ export default function SecretAdminModal() {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => {
                       sessionStorage.removeItem("admin_key");
                       setIsUnlocked(false);
                     }}
-                    className="text-xs text-rose-400 hover:text-rose-300 font-semibold px-3 py-1.5 rounded-xl bg-rose-500/10 transition-colors"
+                    className="text-xs text-rose-400 hover:text-rose-300 font-semibold px-3 py-1.5 rounded-xl bg-rose-500/10 transition-colors cursor-pointer"
                   >
                     Lock Deck
                   </button>
@@ -412,8 +421,9 @@ export default function SecretAdminModal() {
                               <p className="text-[10px] text-slate-400 line-clamp-1">{p.description}</p>
                             </div>
                             <button
+                              type="button"
                               onClick={() => handleDelete(p.id, p.title)}
-                              className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-colors"
+                              className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer"
                               title="Delete"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

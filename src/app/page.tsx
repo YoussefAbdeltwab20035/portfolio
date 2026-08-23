@@ -7,9 +7,7 @@ import Projects from "@/components/Projects";
 import FAQ from "@/components/FAQ";
 import Workflow from "@/components/Workflow";
 import Experience from "@/components/Experience";
-import TerminalSimulator from "@/components/TerminalSimulator";
 import Footer from "@/components/Footer";
-import SecretAdminModal from "@/components/SecretAdminModal";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +16,7 @@ async function getProjects(): Promise<Project[]> {
     const rawProjects = await prisma.project.findMany({
       orderBy: { index: "asc" },
     });
-
-    if (!rawProjects || rawProjects.length === 0) {
-      return PORTFOLIO_DATA.projects;
-    }
-
+    if (!rawProjects || rawProjects.length === 0) return PORTFOLIO_DATA.projects;
     return rawProjects.map((p) => ({
       id: p.id,
       title: p.title,
@@ -30,17 +24,12 @@ async function getProjects(): Promise<Project[]> {
       description: p.description,
       longDescription: p.longDescription ?? undefined,
       image: p.image.startsWith("/") ? p.image : `/${p.image}`,
-      techStack: p.techStackRaw
-        ? p.techStackRaw.split(",").map((s) => s.trim())
-        : [],
-      keyFeatures: p.keyFeaturesRaw
-        ? p.keyFeaturesRaw.split(",").map((s) => s.trim())
-        : undefined,
+      techStack: p.techStackRaw ? p.techStackRaw.split(",").map((s) => s.trim()) : [],
+      keyFeatures: p.keyFeaturesRaw ? p.keyFeaturesRaw.split(",").map((s) => s.trim()) : undefined,
       githubUrl: p.githubUrl ?? undefined,
       liveUrl: p.liveUrl ?? undefined,
     }));
-  } catch (error) {
-    console.warn("Prisma query fallback to static data store:", error);
+  } catch {
     return PORTFOLIO_DATA.projects;
   }
 }
@@ -49,7 +38,7 @@ export default async function Home() {
   const projects = await getProjects();
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <main className="w-full min-h-screen bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 overflow-x-hidden">
       <Navbar />
       <Hero />
       <About />
@@ -57,9 +46,7 @@ export default async function Home() {
       <FAQ />
       <Workflow />
       <Experience />
-      <TerminalSimulator />
       <Footer />
-      <SecretAdminModal />
     </main>
   );
 }

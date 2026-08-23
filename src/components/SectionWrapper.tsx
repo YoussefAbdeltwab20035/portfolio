@@ -9,7 +9,6 @@ interface SectionWrapperProps {
   className?: string;
 }
 
-// 💡 إضافة as const لتحديد نوع المصفوفة بدقة لـ TypeScript
 const customEase = [0.22, 1, 0.36, 1] as const;
 
 export default function SectionWrapper({
@@ -20,14 +19,14 @@ export default function SectionWrapper({
   return (
     <motion.section
       id={id}
-      initial={{ opacity: 0, y: 32, scale: 0.98 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.15 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.05 }}
       transition={{
-        duration: 0.7,
+        duration: 0.5,
         ease: customEase,
       }}
-      className={className}
+      className={`relative w-full pointer-events-auto ${className}`}
     >
       {children}
     </motion.section>

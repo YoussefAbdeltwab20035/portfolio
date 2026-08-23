@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { PORTFOLIO_DATA } from "@/data/portfolioData";
 
-/* أيقونات SVG دقيقة وعالية الجودة */
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -30,14 +29,6 @@ function LinkedinIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-    </svg>
-  );
-}
-
 function WhatsappIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -49,15 +40,16 @@ function WhatsappIcon({ className = "w-4 h-4" }: { className?: string }) {
 export default function Footer() {
   const { personal } = PORTFOLIO_DATA;
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // إحداثيات تأثير الـ 3D Tilt للدائرة المركزية
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const orbRef = useRef<HTMLDivElement>(null);
 
   const handleOrbMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) return;
     if (!orbRef.current) return;
     const rect = orbRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width / 2;
@@ -69,7 +61,8 @@ export default function Footer() {
     setRotate({ x: 0, y: 0 });
   };
 
-  const handleCopyEmail = () => {
+  const handleCopyEmail = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (personal.email) {
       navigator.clipboard.writeText(personal.email);
       setCopied(true);
@@ -86,12 +79,13 @@ export default function Footer() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, message }),
       });
 
       if (res.ok) {
         setSent(true);
         setEmail("");
+        setMessage("");
         setTimeout(() => setSent(false), 4000);
       } else {
         alert("Failed to send notification. Please reach out directly via WhatsApp or Email.");
@@ -112,9 +106,7 @@ export default function Footer() {
     }
     const element = document.getElementById(id);
     if (element) {
-      const offset = 80;
-      const targetY = element.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top: targetY, behavior: "smooth" });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -129,9 +121,8 @@ export default function Footer() {
   return (
     <footer 
       id="contact" 
-      className="relative w-full pt-28 pb-16 px-6 bg-[#04060A] text-slate-100 overflow-hidden border-t border-white/[0.08]"
+      className="relative w-full pt-16 sm:pt-28 pb-10 sm:pb-16 px-3 sm:px-6 bg-[#04060A] text-slate-100 overflow-hidden border-t border-white/[0.08] pointer-events-auto scroll-mt-20"
     >
-      {/* شبكة نقاط مضيئة بتأثير Matrix أسود وفخم */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-20"
         style={{
@@ -142,18 +133,17 @@ export default function Footer() {
         }}
       />
 
-      {/* توهج إضاءة في الخلفية */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="relative max-w-4xl mx-auto flex flex-col items-center text-center z-10">
+      <div className="relative max-w-4xl mx-auto flex flex-col items-center text-center z-10 pointer-events-auto">
         
-        {/* الدائرة المركزية بالشعار وتأثير 3D Parallax */}
+        {/* الشعار المركزي */}
         <div
           ref={orbRef}
           onMouseMove={handleOrbMouseMove}
           onMouseLeave={handleOrbMouseLeave}
           style={{ perspective: 1000 }}
-          className="mb-8 cursor-pointer"
+          className="mb-5 sm:mb-8 cursor-pointer"
         >
           <motion.div
             animate={{
@@ -161,20 +151,19 @@ export default function Footer() {
               rotateY: rotate.y,
             }}
             transition={{ type: "spring", stiffness: 220, damping: 18 }}
-            className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full p-[2px] bg-gradient-to-tr from-amber-500/40 via-white/10 to-cyan-500/40 shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center justify-center group"
+            className="relative w-16 h-16 sm:w-28 sm:h-28 rounded-full p-[2px] bg-gradient-to-tr from-amber-500/40 via-white/10 to-cyan-500/40 shadow-[0_0_40px_rgba(245,158,11,0.15)] flex items-center justify-center group pointer-events-auto"
           >
-            <div className="relative w-full h-full rounded-full bg-[#080C14] border border-white/10 flex items-center justify-center shadow-inner overflow-hidden p-3.5">
-              <div className="relative w-full h-full rounded-full overflow-hidden">
+            <div className="relative w-full h-full rounded-full bg-[#080C14] border border-white/10 flex items-center justify-center shadow-inner overflow-hidden p-2.5 sm:p-3.5">
+              <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt="Youssef Abdeltwab Logo"
-                  fill
-                  sizes="(max-width: 640px) 96px, 112px"
-                  className="object-contain group-hover:scale-110 transition-transform duration-300"
+                  width={112}
+                  height={112}
+                  priority
+                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
                 />
               </div>
-
-              {/* خط إضاءة متحرك بالداخل */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent pointer-events-none" />
             </div>
 
@@ -182,128 +171,126 @@ export default function Footer() {
           </motion.div>
         </div>
 
-        {/* النصوص الترحيبية المركزة */}
-        <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4">
+        <h2 className="text-2xl sm:text-5xl font-black tracking-tight text-white mb-2 sm:mb-4">
           Let&apos;s Build Something{" "}
           <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
             Exceptional
           </span>
         </h2>
         
-        <p className="text-slate-400 text-sm sm:text-base max-w-lg mb-10 leading-relaxed font-normal">
+        <p className="text-slate-400 text-xs sm:text-base max-w-lg mb-6 sm:mb-10 leading-relaxed font-normal">
           Currently open for high-impact full-stack web applications, contract roles, and software architecture discussions.
         </p>
 
-        {/* أزرار السوشيال ميديا والتواصل المباشر */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
+        {/* أزرار التواصل المباشر */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-10 pointer-events-auto w-full">
           
-          {/* زر WhatsApp */}
-          <a
-            href={`https://wa.me/201550386456?text=${encodeURIComponent("مرحباً يوسف، رأيت معرض أعمالك وأريد الاستفسار عن بناء وتطوير مشروع ويب.")}`}
-            target="_blank"
-            rel="noreferrer"
-            className="px-4 py-2.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
-          >
-            <WhatsappIcon className="w-4 h-4 text-emerald-400" />
-            <span>WhatsApp</span>
-          </a>
+          {personal.whatsapp && (
+            <a
+              href={personal.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 sm:px-4 py-2 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
+            >
+              <WhatsappIcon className="w-4 h-4 text-emerald-400" />
+              <span>WhatsApp</span>
+            </a>
+          )}
 
-          {/* زر GitHub */}
           {personal.github && (
             <a
               href={personal.github}
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-2.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-lg active:scale-95"
+              className="px-3 sm:px-4 py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
             >
               <GithubIcon className="w-4 h-4" />
               <span>GitHub</span>
             </a>
           )}
 
-          {/* زر LinkedIn */}
           {personal.linkedin && (
             <a
               href={personal.linkedin}
               target="_blank"
               rel="noreferrer"
-              className="px-4 py-2.5 rounded-2xl bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 border border-[#0A66C2]/30 text-sky-400 hover:text-sky-300 text-xs font-semibold flex items-center gap-2 transition-all shadow-lg active:scale-95"
+              className="px-3 sm:px-4 py-2 rounded-2xl bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 border border-[#0A66C2]/30 text-sky-400 hover:text-sky-300 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
             >
               <LinkedinIcon className="w-4 h-4" />
               <span>LinkedIn</span>
             </a>
           )}
 
-          {/* زر Instagram */}
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noreferrer"
-            className="px-4 py-2.5 rounded-2xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 text-pink-400 hover:text-pink-300 text-xs font-semibold flex items-center gap-2 transition-all shadow-lg active:scale-95"
-          >
-            <InstagramIcon className="w-4 h-4" />
-            <span>Instagram</span>
-          </a>
-
-          {/* زر نسخ الإيميل بضغطة زر */}
           <button
+            type="button"
             onClick={handleCopyEmail}
-            className="px-4 py-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:text-amber-300 text-xs font-semibold flex items-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer"
+            className="px-3 sm:px-4 py-2 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer pointer-events-auto"
           >
             {copied ? (
-              <>
-                <Check className="w-4 h-4 text-emerald-400" />
-                <span className="text-emerald-400">Email Copied!</span>
-              </>
+              <span className="flex items-center gap-1 text-emerald-400">
+                <Check className="w-4 h-4" />
+                <span>Copied!</span>
+              </span>
             ) : (
-              <>
+              <span className="flex items-center gap-1">
                 <Copy className="w-3.5 h-3.5" />
                 <span>Copy Email</span>
-              </>
+              </span>
             )}
           </button>
         </div>
 
-        {/* حقل المراسلة الفعلي المتصل بـ API الإيميل */}
-        <form onSubmit={handleSendEmail} className="w-full max-w-md flex items-center gap-2 mb-12">
-          <div className="relative flex-1">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        {/* نموذج الإيميل والرسالة المتجاوب */}
+        <form onSubmit={handleSendEmail} className="w-full max-w-lg flex flex-col gap-2.5 mb-8 sm:mb-10 pointer-events-auto">
+          <div className="relative w-full">
+            <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email to connect..."
+              placeholder="Enter your email..."
               disabled={loading || sent}
               required
-              className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-[#090D17] border border-white/10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all shadow-inner disabled:opacity-50"
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#090D17] border border-white/10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-all disabled:opacity-50"
             />
           </div>
+
+          <textarea
+            name="message"
+            rows={3}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="What would you like to discuss or build?"
+            disabled={loading || sent}
+            className="w-full px-4 py-2.5 rounded-2xl bg-[#090D17] border border-white/10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-all disabled:opacity-50 resize-none"
+          />
+
           <button
             type="submit"
             disabled={loading || sent}
-            className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-xl shadow-amber-500/15 active:scale-95 flex items-center gap-1.5 cursor-pointer disabled:opacity-80 shrink-0"
+            className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-80 shrink-0"
           >
             {loading ? (
-              <>
+              <span className="flex items-center gap-1.5">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Sending...</span>
-              </>
+              </span>
             ) : sent ? (
-              <>
+              <span className="flex items-center gap-1.5">
                 <Check className="w-4 h-4" />
-                <span>Sent!</span>
-              </>
+                <span>Sent Successfully!</span>
+              </span>
             ) : (
-              <>
-                <span>Get in Touch</span>
+              <span className="flex items-center gap-1.5">
+                <span>Send Message</span>
                 <ArrowUpRight className="w-4 h-4" />
-              </>
+              </span>
             )}
           </button>
         </form>
 
-        {/* روابط التنقل السريعة بين الأقسام */}
-        <nav className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 mb-12">
+        {/* روابط التنقل السفلية */}
+        <nav className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 mb-8 pointer-events-auto">
           {navLinks.map((link) => (
             <a
               key={link.id}
@@ -316,13 +303,13 @@ export default function Footer() {
           ))}
         </nav>
 
-        {/* سطر حقوق النشر والمعلومات التقنية */}
-        <div className="flex flex-col sm:flex-row items-center justify-between w-full pt-8 border-t border-white/[0.06] text-xs text-slate-500 gap-3">
+        {/* سطر الحقوق */}
+        <div className="flex flex-col sm:flex-row items-center justify-between w-full pt-5 border-t border-white/[0.06] text-xs text-slate-500 gap-2.5">
           <p>© {new Date().getFullYear()} {personal.name}. All rights reserved.</p>
           
-          <div className="flex items-center gap-2 font-mono text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
             <Terminal className="w-3.5 h-3.5 text-amber-500" />
-            <span>Built with Next.js 15 & MERN Stack</span>
+            <span>Built with Next.js & MERN Stack</span>
           </div>
         </div>
 
