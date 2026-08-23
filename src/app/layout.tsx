@@ -27,8 +27,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://youssef-abdeltwab.dev"),
-  title: {
+metadataBase: new URL("https://youssef-abdeltwab.vercel.app"),  title: {
     default: "Youssef Abdeltwab — Full-Stack Web Developer",
     template: "%s | Youssef Abdeltwab",
   },
