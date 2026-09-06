@@ -17,6 +17,20 @@ function verifySecret(key: string): boolean {
   return cleanInput === MASTER_KEY || (cleanEnv !== "" && cleanInput === cleanEnv);
 }
 
+// دالة تنظيف مسار الصورة لضمان عدم حفظ سلاش زائد قبل data:image
+function sanitizeImagePath(rawImage?: string): string {
+  if (!rawImage) return "/projects/placeholder.png";
+  const trimmed = rawImage.trim();
+
+  // لو الصورة Base64 وفيها سلاش في الأول، نزيل كل ما قبل data:image
+  const dataIdx = trimmed.indexOf("data:image");
+  if (dataIdx !== -1) {
+    return trimmed.substring(dataIdx);
+  }
+
+  return trimmed;
+}
+
 // 1. إضافة مشروع جديد
 export async function createProjectAction(formData: FormData, secretKey: string) {
   try {
@@ -28,7 +42,8 @@ export async function createProjectAction(formData: FormData, secretKey: string)
     const subtitle = (formData.get("subtitle") as string)?.trim() || "Full-Stack Project";
     const description = (formData.get("description") as string)?.trim();
     const longDescription = (formData.get("longDescription") as string)?.trim() || undefined;
-    const image = (formData.get("image") as string)?.trim() || "/placeholder.png";
+    const rawImage = (formData.get("image") as string)?.trim();
+    const image = sanitizeImagePath(rawImage);
     const techStackRaw = (formData.get("techStackRaw") as string)?.trim();
     const githubUrl = (formData.get("githubUrl") as string)?.trim() || undefined;
     const liveUrl = (formData.get("liveUrl") as string)?.trim() || undefined;
