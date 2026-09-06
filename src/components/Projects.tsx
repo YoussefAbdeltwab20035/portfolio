@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ExternalLink, 
@@ -38,17 +37,15 @@ export default function Projects({ initialProjects }: ProjectsProps) {
     setSelectedProject(null);
   };
 
-  const getCleanSrc = (src?: string) => {
+  // دالة تنظيف المسار لقطع أي سلاش أو دومين قبل كود الـ base64
+  const cleanDataUri = (src?: string) => {
     if (!src) return "/projects/placeholder.png";
-    let s = src.trim();
-    if (s.startsWith("/data:")) s = s.substring(1);
-    return s;
-  };
-
-  const isLocalStaticAsset = (src?: string) => {
-    if (!src) return true;
     const s = src.trim();
-    return s.startsWith("/projects/") || s.startsWith("/admin-art");
+    const dataIdx = s.indexOf("data:image");
+    if (dataIdx !== -1) {
+      return s.substring(dataIdx);
+    }
+    return s;
   };
 
   return (
@@ -73,8 +70,7 @@ export default function Projects({ initialProjects }: ProjectsProps) {
       {/* شبكة المشاريع */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
         {projectsList.map((project: Project, index: number) => {
-          const imgSrc = getCleanSrc(project.image);
-          const useNextImage = isLocalStaticAsset(project.image);
+          const imgSrc = cleanDataUri(project.image);
 
           return (
             <motion.div
@@ -89,23 +85,15 @@ export default function Projects({ initialProjects }: ProjectsProps) {
                 onClick={() => openModal(project)}
                 className="relative w-full h-52 sm:h-72 overflow-hidden cursor-pointer bg-slate-900 dark:bg-[#05070B] border-b border-slate-200 dark:border-white/[0.08]"
               >
-                {useNextImage ? (
-                  <Image
-                    src={imgSrc}
-                    alt={`Preview of ${project.title}`}
-                    fill
-                    priority={index === 0}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                  />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={imgSrc}
-                    alt={`Preview of ${project.title}`}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                  />
-                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imgSrc}
+                  alt={`Preview of ${project.title}`}
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/projects/placeholder.png";
+                  }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 dark:from-[#0A0D14] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
                 
                 <button 
@@ -260,22 +248,15 @@ export default function Projects({ initialProjects }: ProjectsProps) {
               {activeTab === "overview" && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3.5">
                   <div className="relative w-full h-48 sm:h-72 rounded-2xl overflow-hidden mb-3 border border-slate-200 dark:border-white/10 bg-slate-900 dark:bg-[#05070B]">
-                    {isLocalStaticAsset(selectedProject.image) ? (
-                      <Image
-                        src={getCleanSrc(selectedProject.image)}
-                        alt={`Detailed view of ${selectedProject.title}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 700px"
-                        className="object-cover object-center"
-                      />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={getCleanSrc(selectedProject.image)}
-                        alt={`Detailed view of ${selectedProject.title}`}
-                        className="w-full h-full object-cover object-center"
-                      />
-                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={cleanDataUri(selectedProject.image)}
+                      alt={`Detailed view of ${selectedProject.title}`}
+                      className="w-full h-full object-cover object-center"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/projects/placeholder.png";
+                      }}
+                    />
                   </div>
                   <p className="text-slate-800 dark:text-[#D8D3C8] text-xs sm:text-sm leading-relaxed">
                     {selectedProject.longDescription || selectedProject.description}
