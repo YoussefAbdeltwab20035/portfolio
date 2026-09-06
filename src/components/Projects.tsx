@@ -38,6 +38,10 @@ export default function Projects({ initialProjects }: ProjectsProps) {
     setSelectedProject(null);
   };
 
+  const isBase64 = (imgSrc?: string) => {
+    return Boolean(imgSrc && (imgSrc.startsWith("data:") || imgSrc.length > 300));
+  };
+
   return (
     <section id="projects" className="py-12 sm:py-20 px-3 sm:px-6 max-w-[1550px] mx-auto scroll-mt-20 pointer-events-auto transition-colors duration-300">
       
@@ -72,14 +76,23 @@ export default function Projects({ initialProjects }: ProjectsProps) {
               onClick={() => openModal(project)}
               className="relative w-full h-52 sm:h-72 overflow-hidden cursor-pointer bg-slate-100 dark:bg-[#05070B] border-b border-slate-200 dark:border-white/[0.08]"
             >
-              <Image
-                src={project.image}
-                alt={`Preview of ${project.title}`}
-                fill
-                priority={index === 0}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-              />
+              {isBase64(project.image) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={project.image}
+                  alt={`Preview of ${project.title}`}
+                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <Image
+                  src={project.image || "/projects/placeholder.png"}
+                  alt={`Preview of ${project.title}`}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 dark:from-[#0A0D14] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
               
               <button 
@@ -233,13 +246,22 @@ export default function Projects({ initialProjects }: ProjectsProps) {
               {activeTab === "overview" && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3.5">
                   <div className="relative w-full h-48 sm:h-72 rounded-2xl overflow-hidden mb-3 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#05070B]">
-                    <Image
-                      src={selectedProject.image}
-                      alt={`Detailed view of ${selectedProject.title}`}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 700px"
-                      className="object-cover object-center"
-                    />
+                    {isBase64(selectedProject.image) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={selectedProject.image}
+                        alt={`Detailed view of ${selectedProject.title}`}
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <Image
+                        src={selectedProject.image || "/projects/placeholder.png"}
+                        alt={`Detailed view of ${selectedProject.title}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 700px"
+                        className="object-cover object-center"
+                      />
+                    )}
                   </div>
                   <p className="text-slate-800 dark:text-[#D8D3C8] text-xs sm:text-sm leading-relaxed">
                     {selectedProject.longDescription || selectedProject.description}

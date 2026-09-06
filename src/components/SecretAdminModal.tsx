@@ -124,16 +124,45 @@ export default function SecretAdminModal() {
     loadProjects(secretKey);
   };
 
+  // دالة ذكية لضغط السكرين شوت وتصغيرها إلى Base64 خفيف جداً وسريع
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFileName(file.name);
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        setImageValue(reader.result as string);
+    if (!file) return;
+
+    setImageFileName(file.name);
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.src = event.target?.result as string;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((maxWidth / width) * height);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // ضغط الصورة إلى JPEG بجودة 0.75 لتقليل الحجم بشكل كبير
+          const compressed = canvas.toDataURL("image/jpeg", 0.75);
+          setImageValue(compressed);
+        } else {
+          setImageValue(event.target?.result as string);
+        }
       };
-    }
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -144,7 +173,7 @@ export default function SecretAdminModal() {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
-    // وضع قيمة الصورة المحولة (Base64) أو المسار اليدوي في الـ FormData
+    // وضع قيمة الصورة المحولة والمضغوطة في الـ FormData
     if (imageValue) {
       formData.set("image", imageValue);
     }
