@@ -13,7 +13,8 @@ import {
   Eye,
   EyeOff,
   Sparkles,
-  Upload
+  Upload,
+  Check
 } from "lucide-react";
 import { 
   createProjectAction, 
@@ -44,6 +45,7 @@ export default function SecretAdminModal() {
   // States لرفع الصورة ومعاينتها
   const [imageValue, setImageValue] = useState("");
   const [imageFileName, setImageFileName] = useState("");
+  const [compressing, setCompressing] = useState(false);
 
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
@@ -124,21 +126,22 @@ export default function SecretAdminModal() {
     loadProjects(secretKey);
   };
 
-  // دالة ذكية لضغط السكرين شوت وتصغيرها إلى Base64 خفيف جداً وسريع
+  // دالة ضغط وتجهيز الصورة Base64
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageFileName(file.name);
-    const reader = new FileReader();
+    setCompressing(true);
 
+    const reader = new FileReader();
     reader.onload = (event) => {
       const img = new window.Image();
       img.src = event.target?.result as string;
 
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const maxWidth = 1200;
+        const maxWidth = 1000;
         let width = img.width;
         let height = img.height;
 
@@ -153,12 +156,12 @@ export default function SecretAdminModal() {
         const ctx = canvas.getContext("2d");
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          // ضغط الصورة إلى JPEG بجودة 0.75 لتقليل الحجم بشكل كبير
           const compressed = canvas.toDataURL("image/jpeg", 0.75);
           setImageValue(compressed);
         } else {
           setImageValue(event.target?.result as string);
         }
+        setCompressing(false);
       };
     };
 
@@ -173,7 +176,7 @@ export default function SecretAdminModal() {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
-    // وضع قيمة الصورة المحولة والمضغوطة في الـ FormData
+    // ضمان كتابة الـ Base64 النظيف داخل الحقل image
     if (imageValue) {
       formData.set("image", imageValue);
     }
@@ -357,7 +360,7 @@ export default function SecretAdminModal() {
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-white">Owner Control Deck</h3>
-                      <span className="text-[11px] text-slate-400 font-mono">SQLite Live Sync</span>
+                      <span className="text-[11px] text-slate-400 font-mono">Dynamic Portfolio Sync</span>
                     </div>
                   </div>
 
@@ -390,6 +393,9 @@ export default function SecretAdminModal() {
                       <Plus className="w-3.5 h-3.5" /> Add New Project
                     </h4>
 
+                    {/* حقل مخفي يحتوي على قيمة الصورة مباشرة */}
+                    <input type="hidden" name="image" value={imageValue} />
+
                     <input
                       name="title"
                       type="text"
@@ -421,19 +427,35 @@ export default function SecretAdminModal() {
                       className="w-full px-3 py-2 rounded-xl bg-[#080B11] border border-white/10 text-xs text-white placeholder:text-slate-600 focus:border-amber-500 focus:outline-none"
                     />
 
-                    {/* زرار اختيار ورفع الصورة */}
-                    <div className="relative flex items-center justify-between w-full h-9 px-3 rounded-xl bg-[#080B11] border border-white/10 text-xs text-slate-400 hover:border-amber-500 transition cursor-pointer">
-                      <span className="truncate">
-                        {imageFileName ? imageFileName : "Choose Project Image..."}
-                      </span>
+                    {/* زر اختيار ورفع الصورة مع المعاينة المباشرة */}
+                    <div className="relative flex items-center justify-between w-full h-10 px-3 rounded-xl bg-[#080B11] border border-white/10 text-xs text-slate-400 hover:border-amber-500 transition cursor-pointer">
+                      <div className="flex items-center gap-2 truncate">
+                        {imageValue ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img 
+                            src={imageValue} 
+                            alt="thumb" 
+                            className="w-6 h-6 rounded object-cover border border-emerald-500/50" 
+                          />
+                        ) : null}
+                        <span className="truncate">
+                          {compressing 
+                            ? "Optimizing screenshot..." 
+                            : imageFileName 
+                            ? imageFileName 
+                            : "Choose Project Screenshot..."}
+                        </span>
+                      </div>
+                      
                       <input 
                         type="file" 
                         accept="image/*"
                         onChange={handleImageChange}
                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                       />
-                      <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 px-2 py-1 rounded text-[10px] font-semibold">
-                        <Upload className="w-3 h-3" /> Browse
+                      <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 px-2 py-1 rounded text-[10px] font-semibold shrink-0">
+                        {imageValue ? <Check className="w-3 h-3 text-emerald-400" /> : <Upload className="w-3 h-3" />}
+                        {imageValue ? "Loaded" : "Browse"}
                       </span>
                     </div>
 
@@ -454,10 +476,10 @@ export default function SecretAdminModal() {
 
                     <button
                       type="submit"
-                      disabled={loading}
+                      disabled={loading || compressing}
                       className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
                     >
-                      {loading ? "Adding..." : "Add to Database"}
+                      {loading ? "Adding to live..." : compressing ? "Processing Image..." : "Add to Database"}
                     </button>
                   </form>
 

@@ -38,8 +38,17 @@ export default function Projects({ initialProjects }: ProjectsProps) {
     setSelectedProject(null);
   };
 
-  const isBase64 = (imgSrc?: string) => {
-    return Boolean(imgSrc && (imgSrc.startsWith("data:") || imgSrc.length > 300));
+  const cleanImageSrc = (src?: string) => {
+    if (!src) return "/projects/placeholder.png";
+    if (src.startsWith("/data:")) {
+      return src.substring(1);
+    }
+    return src;
+  };
+
+  const isBase64 = (src?: string) => {
+    const cleaned = cleanImageSrc(src);
+    return Boolean(cleaned && (cleaned.startsWith("data:") || cleaned.length > 300));
   };
 
   return (
@@ -74,18 +83,18 @@ export default function Projects({ initialProjects }: ProjectsProps) {
           >
             <div 
               onClick={() => openModal(project)}
-              className="relative w-full h-52 sm:h-72 overflow-hidden cursor-pointer bg-slate-100 dark:bg-[#05070B] border-b border-slate-200 dark:border-white/[0.08]"
+              className="relative w-full h-52 sm:h-72 overflow-hidden cursor-pointer bg-slate-900 dark:bg-[#05070B] border-b border-slate-200 dark:border-white/[0.08]"
             >
               {isBase64(project.image) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={project.image}
+                  src={cleanImageSrc(project.image)}
                   alt={`Preview of ${project.title}`}
                   className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
                 <Image
-                  src={project.image || "/projects/placeholder.png"}
+                  src={cleanImageSrc(project.image)}
                   alt={`Preview of ${project.title}`}
                   fill
                   priority={index === 0}
@@ -245,17 +254,17 @@ export default function Projects({ initialProjects }: ProjectsProps) {
 
               {activeTab === "overview" && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3.5">
-                  <div className="relative w-full h-48 sm:h-72 rounded-2xl overflow-hidden mb-3 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#05070B]">
+                  <div className="relative w-full h-48 sm:h-72 rounded-2xl overflow-hidden mb-3 border border-slate-200 dark:border-white/10 bg-slate-900 dark:bg-[#05070B]">
                     {isBase64(selectedProject.image) ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={selectedProject.image}
+                        src={cleanImageSrc(selectedProject.image)}
                         alt={`Detailed view of ${selectedProject.title}`}
                         className="w-full h-full object-cover object-center"
                       />
                     ) : (
                       <Image
-                        src={selectedProject.image || "/projects/placeholder.png"}
+                        src={cleanImageSrc(selectedProject.image)}
                         alt={`Detailed view of ${selectedProject.title}`}
                         fill
                         sizes="(max-width: 768px) 100vw, 700px"
