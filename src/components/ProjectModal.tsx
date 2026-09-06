@@ -41,6 +41,10 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
     };
   }, [project, onClose]);
 
+  const isBase64Image = (imgSrc?: string) => {
+    return imgSrc && (imgSrc.startsWith("data:image/") || imgSrc.length > 300);
+  };
+
   return (
     <AnimatePresence>
       {project && (
@@ -73,14 +77,25 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
 
             {/* الهيدر مع صورة عرض واسعة */}
             <div className="relative w-full h-64 sm:h-80 bg-slate-950 overflow-hidden">
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 896px"
-                className="object-cover object-top opacity-90"
-              />
+              {isBase64Image(project.image) ? (
+                // لو الصورة Base64 يتم عرضها باستخدام tag عادي مع إيقاف التحذير
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover object-top opacity-95"
+                />
+              ) : (
+                // لو رابط عادي يتم استخدام Next Image
+                <Image
+                  src={project.image || "/projects/placeholder.png"}
+                  alt={project.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 896px"
+                  className="object-cover object-top opacity-90"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0E131F] via-[#0E131F]/50 to-transparent" />
 
               <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 z-20">
