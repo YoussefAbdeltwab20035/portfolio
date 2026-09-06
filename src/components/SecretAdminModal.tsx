@@ -42,7 +42,7 @@ export default function SecretAdminModal() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // States لرفع الصورة ومعاينتها
+  // حالات رفع وتجهيز الصورة
   const [imageValue, setImageValue] = useState("");
   const [imageFileName, setImageFileName] = useState("");
   const [compressing, setCompressing] = useState(false);
@@ -126,57 +126,71 @@ export default function SecretAdminModal() {
     loadProjects(secretKey);
   };
 
-  // دالة ضغط وتجهيز الصورة Base64
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // دالة ضغط وتحويل الصورة إلى Base64 خفيف وموثوق
+  const compressImageFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxWidth = 900;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((maxWidth / width) * height);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(img.src);
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageFileName(file.name);
     setCompressing(true);
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new window.Image();
-      img.src = event.target?.result as string;
-
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const maxWidth = 1000;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = Math.round((maxWidth / width) * height);
-          width = maxWidth;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressed = canvas.toDataURL("image/jpeg", 0.75);
-          setImageValue(compressed);
-        } else {
-          setImageValue(event.target?.result as string);
-        }
-        setCompressing(false);
-      };
-    };
-
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImageFile(file);
+      setImageValue(compressed);
+    } catch (error) {
+      console.error("Compression failed:", error);
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (compressing) return;
+
     setLoading(true);
     setMsg(null);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    
-    // ضمان كتابة الـ Base64 النظيف داخل الحقل image
+
     if (imageValue) {
       formData.set("image", imageValue);
     }
