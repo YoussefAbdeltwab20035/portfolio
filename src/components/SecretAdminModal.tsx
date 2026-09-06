@@ -12,7 +12,8 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
+  Upload
 } from "lucide-react";
 import { 
   createProjectAction, 
@@ -39,6 +40,10 @@ export default function SecretAdminModal() {
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // States لرفع الصورة ومعاينتها
+  const [imageValue, setImageValue] = useState("");
+  const [imageFileName, setImageFileName] = useState("");
 
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
@@ -83,10 +88,8 @@ export default function SecretAdminModal() {
     setLoading(false);
   }, []);
 
-  // الاستماع لاختصار لوحة المفاتيح: Ctrl + Shift + M والحدث المخصص حصراً دون التأثير على البحث
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // السماح باختصار Ctrl + Shift + M فقط لفتح الأدمن
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "M" || e.key === "m")) {
         e.preventDefault();
         setIsOpen((prev) => !prev);
@@ -121,6 +124,18 @@ export default function SecretAdminModal() {
     loadProjects(secretKey);
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFileName(file.name);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setImageValue(reader.result as string);
+      };
+    }
+  };
+
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -128,11 +143,18 @@ export default function SecretAdminModal() {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+    
+    // وضع قيمة الصورة المحولة (Base64) أو المسار اليدوي في الـ FormData
+    if (imageValue) {
+      formData.set("image", imageValue);
+    }
 
     const res = await createProjectAction(formData, secretKey);
     if (res.success) {
       setMsg({ type: "success", text: "Project added to live database!" });
       form.reset();
+      setImageValue("");
+      setImageFileName("");
       loadProjects(secretKey);
     } else {
       setMsg({ type: "error", text: res.error || "Failed to publish." });
@@ -370,12 +392,21 @@ export default function SecretAdminModal() {
                       className="w-full px-3 py-2 rounded-xl bg-[#080B11] border border-white/10 text-xs text-white placeholder:text-slate-600 focus:border-amber-500 focus:outline-none"
                     />
 
-                    <input
-                      name="image"
-                      type="text"
-                      placeholder="Image URL / Path (/projects/p1.png)"
-                      className="w-full px-3 py-2 rounded-xl bg-[#080B11] border border-white/10 text-xs text-white placeholder:text-slate-600 focus:border-amber-500 focus:outline-none"
-                    />
+                    {/* زرار اختيار ورفع الصورة */}
+                    <div className="relative flex items-center justify-between w-full h-9 px-3 rounded-xl bg-[#080B11] border border-white/10 text-xs text-slate-400 hover:border-amber-500 transition cursor-pointer">
+                      <span className="truncate">
+                        {imageFileName ? imageFileName : "Choose Project Image..."}
+                      </span>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      />
+                      <span className="flex items-center gap-1 bg-amber-500/20 text-amber-400 px-2 py-1 rounded text-[10px] font-semibold">
+                        <Upload className="w-3 h-3" /> Browse
+                      </span>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <input
