@@ -38,17 +38,17 @@ export default function Projects({ initialProjects }: ProjectsProps) {
     setSelectedProject(null);
   };
 
-  const cleanImageSrc = (src?: string) => {
+  const getCleanSrc = (src?: string) => {
     if (!src) return "/projects/placeholder.png";
-    if (src.startsWith("/data:")) {
-      return src.substring(1);
-    }
-    return src;
+    let s = src.trim();
+    if (s.startsWith("/data:")) s = s.substring(1);
+    return s;
   };
 
-  const isBase64 = (src?: string) => {
-    const cleaned = cleanImageSrc(src);
-    return Boolean(cleaned && (cleaned.startsWith("data:") || cleaned.length > 300));
+  const isLocalStaticAsset = (src?: string) => {
+    if (!src) return true;
+    const s = src.trim();
+    return s.startsWith("/projects/") || s.startsWith("/admin-art");
   };
 
   return (
@@ -72,107 +72,112 @@ export default function Projects({ initialProjects }: ProjectsProps) {
 
       {/* شبكة المشاريع */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
-        {projectsList.map((project: Project, index: number) => (
-          <motion.div
-            key={project.id || project.title}
-            initial={{ opacity: 1, y: 0 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.05 }}
-            transition={{ duration: 0.4, delay: index * 0.08 }}
-            className="group relative rounded-[24px] sm:rounded-[32px] bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-white/[0.12] overflow-hidden hover:border-amber-500 dark:hover:border-amber-400/50 transition-all duration-300 shadow-sm dark:shadow-2xl flex flex-col justify-between pointer-events-auto"
-          >
-            <div 
-              onClick={() => openModal(project)}
-              className="relative w-full h-52 sm:h-72 overflow-hidden cursor-pointer bg-slate-900 dark:bg-[#05070B] border-b border-slate-200 dark:border-white/[0.08]"
+        {projectsList.map((project: Project, index: number) => {
+          const imgSrc = getCleanSrc(project.image);
+          const useNextImage = isLocalStaticAsset(project.image);
+
+          return (
+            <motion.div
+              key={project.id || project.title}
+              initial={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.05 }}
+              transition={{ duration: 0.4, delay: index * 0.08 }}
+              className="group relative rounded-[24px] sm:rounded-[32px] bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-white/[0.12] overflow-hidden hover:border-amber-500 dark:hover:border-amber-400/50 transition-all duration-300 shadow-sm dark:shadow-2xl flex flex-col justify-between pointer-events-auto"
             >
-              {isBase64(project.image) ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={cleanImageSrc(project.image)}
-                  alt={`Preview of ${project.title}`}
-                  className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <Image
-                  src={cleanImageSrc(project.image)}
-                  alt={`Preview of ${project.title}`}
-                  fill
-                  priority={index === 0}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 dark:from-[#0A0D14] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
-              
-              <button 
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openModal(project);
-                }}
-                aria-label={`Enlarge details for ${project.title}`}
-                className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-2 sm:p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/15 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg cursor-pointer pointer-events-auto"
+              <div 
+                onClick={() => openModal(project)}
+                className="relative w-full h-52 sm:h-72 overflow-hidden cursor-pointer bg-slate-900 dark:bg-[#05070B] border-b border-slate-200 dark:border-white/[0.08]"
               >
-                <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </button>
-            </div>
-
-            <div className="p-5 sm:p-8 flex flex-col flex-grow justify-between">
-              <div>
-                <div className="text-[11px] sm:text-xs font-mono font-medium text-amber-700 dark:text-amber-400 mb-1.5">
-                  {project.subtitle}
-                </div>
-                <h3 
-                  onClick={() => openModal(project)}
-                  className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-[#EAE5D9] group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors cursor-pointer mb-2.5"
+                {useNextImage ? (
+                  <Image
+                    src={imgSrc}
+                    alt={`Preview of ${project.title}`}
+                    fill
+                    priority={index === 0}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imgSrc}
+                    alt={`Preview of ${project.title}`}
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 dark:from-[#0A0D14] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
+                
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal(project);
+                  }}
+                  aria-label={`Enlarge details for ${project.title}`}
+                  className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-2 sm:p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/15 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg cursor-pointer pointer-events-auto"
                 >
-                  {project.title}
-                </h3>
-                <p className="text-slate-700 dark:text-[#D8D3C8]/80 text-xs sm:text-sm leading-relaxed mb-5 line-clamp-3">
-                  {project.description}
-                </p>
+                  <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
               </div>
 
-              <div>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-5">
-                  {project.techStack.map((tech: string) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-1 rounded-xl text-[10px] sm:text-[11px] font-mono bg-slate-100 dark:bg-white/[0.04] text-slate-800 dark:text-[#D8D3C8] border border-slate-200 dark:border-white/10"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+              <div className="p-5 sm:p-8 flex flex-col flex-grow justify-between">
+                <div>
+                  <div className="text-[11px] sm:text-xs font-mono font-medium text-amber-700 dark:text-amber-400 mb-1.5">
+                    {project.subtitle}
+                  </div>
+                  <h3 
+                    onClick={() => openModal(project)}
+                    className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-[#EAE5D9] group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors cursor-pointer mb-2.5"
+                  >
+                    {project.title}
+                  </h3>
+                  <p className="text-slate-700 dark:text-[#D8D3C8]/80 text-xs sm:text-sm leading-relaxed mb-5 line-clamp-3">
+                    {project.description}
+                  </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-slate-100 dark:border-white/[0.08]">
-                  {project.githubUrl && (
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`View GitHub repository of ${project.title}`}
-                      className="flex items-center gap-1.5 text-xs font-mono font-medium text-slate-700 dark:text-[#D8D3C8]/80 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer"
-                    >
-                      <GithubIcon className="w-3.5 h-3.5" /> Source
-                    </a>
-                  )}
-                  {project.liveUrl && project.liveUrl !== "#" && (
-                    <a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Launch live project demo of ${project.title}`}
-                      className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-700 dark:text-amber-400 hover:text-amber-600 transition-colors ml-auto cursor-pointer"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" /> Live Demo
-                    </a>
-                  )}
+                <div>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-5">
+                    {project.techStack.map((tech: string) => (
+                      <span
+                        key={tech}
+                        className="px-2.5 py-1 rounded-xl text-[10px] sm:text-[11px] font-mono bg-slate-100 dark:bg-white/[0.04] text-slate-800 dark:text-[#D8D3C8] border border-slate-200 dark:border-white/10"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 pt-3.5 border-t border-slate-100 dark:border-white/[0.08]">
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`View GitHub repository of ${project.title}`}
+                        className="flex items-center gap-1.5 text-xs font-mono font-medium text-slate-700 dark:text-[#D8D3C8]/80 hover:text-slate-950 dark:hover:text-white transition-colors cursor-pointer"
+                      >
+                        <GithubIcon className="w-3.5 h-3.5" /> Source
+                      </a>
+                    )}
+                    {project.liveUrl && project.liveUrl !== "#" && (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Launch live project demo of ${project.title}`}
+                        className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-700 dark:text-amber-400 hover:text-amber-600 transition-colors ml-auto cursor-pointer"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Live Demo
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* المودال التفاعلي */}
@@ -255,20 +260,20 @@ export default function Projects({ initialProjects }: ProjectsProps) {
               {activeTab === "overview" && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3.5">
                   <div className="relative w-full h-48 sm:h-72 rounded-2xl overflow-hidden mb-3 border border-slate-200 dark:border-white/10 bg-slate-900 dark:bg-[#05070B]">
-                    {isBase64(selectedProject.image) ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={cleanImageSrc(selectedProject.image)}
-                        alt={`Detailed view of ${selectedProject.title}`}
-                        className="w-full h-full object-cover object-center"
-                      />
-                    ) : (
+                    {isLocalStaticAsset(selectedProject.image) ? (
                       <Image
-                        src={cleanImageSrc(selectedProject.image)}
+                        src={getCleanSrc(selectedProject.image)}
                         alt={`Detailed view of ${selectedProject.title}`}
                         fill
                         sizes="(max-width: 768px) 100vw, 700px"
                         className="object-cover object-center"
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={getCleanSrc(selectedProject.image)}
+                        alt={`Detailed view of ${selectedProject.title}`}
+                        className="w-full h-full object-cover object-center"
                       />
                     )}
                   </div>
