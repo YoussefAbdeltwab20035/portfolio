@@ -42,7 +42,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   }, [project, onClose]);
 
   const isBase64Image = (imgSrc?: string) => {
-    return imgSrc && (imgSrc.startsWith("data:image/") || imgSrc.length > 300);
+    return imgSrc && (imgSrc.startsWith("data:") || imgSrc.length > 100);
   };
 
   return (
@@ -78,7 +78,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
             {/* الهيدر مع صورة عرض واسعة */}
             <div className="relative w-full h-64 sm:h-80 bg-slate-950 overflow-hidden">
               {isBase64Image(project.image) ? (
-                // لو الصورة Base64 يتم عرضها باستخدام tag عادي مع إيقاف التحذير
+                // لو الصورة Base64 يتم عرضها باستخدام tag عادي لتفادي الـ Next Image Optimizer والـ URI Too Long
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={project.image}
