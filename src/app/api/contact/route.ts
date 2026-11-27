@@ -1,6 +1,31 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+async function sendNtfyAlert(senderEmail: string, message?: string) {
+  const topic = (process.env.NTFY_TOPIC || "sBhYYf0nRytpjRyt").trim();
+  if (!topic) return;
+
+  try {
+    const bodyText = message?.trim()
+      ? `From: ${senderEmail}\n\n${message.trim()}`
+      : `New inquiry from: ${senderEmail}`;
+
+    await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, {
+      method: "POST",
+      headers: {
+        Title: `New Portfolio Inquiry: ${senderEmail}`,
+        Priority: "4",
+        Tags: "incoming_envelope,briefcase",
+        Click: `mailto:${senderEmail}`,
+      },
+      body: bodyText,
+      cache: "no-store",
+    });
+  } catch (err) {
+    console.error("ntfy notification error:", err);
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -57,7 +82,7 @@ export async function POST(req: Request) {
               : ""
           }
 
-          <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); pt: 12px;">
+          <p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
             You can directly click "Reply" in your email client to respond to this lead.
           </p>
         </div>
@@ -65,8 +90,12 @@ export async function POST(req: Request) {
     };
 
     await transporter.sendMail(mailOptions);
+    await sendNtfyAlert(email, message);
 
-    return NextResponse.json({ success: true, message: "Email sent successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Email sent successfully",
+    });
   } catch (error) {
     console.error("Nodemailer error:", error);
     return NextResponse.json(
