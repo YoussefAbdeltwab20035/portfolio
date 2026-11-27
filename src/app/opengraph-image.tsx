@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 export const alt = "Youssef Abdeltwab — Full-Stack MERN Web Developer";
 export const size = {
@@ -7,7 +9,19 @@ export const size = {
 };
 export const contentType = "image/png";
 
+async function getAvatarDataUrl(): Promise<string | null> {
+  try {
+    const filePath = join(process.cwd(), "public", "og-avatar.jpg");
+    const buffer = await readFile(filePath);
+    return `data:image/jpeg;base64,${buffer.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
 export default async function Image() {
+  const avatarSrc = await getAvatarDataUrl();
+
   return new ImageResponse(
     (
       <div
@@ -15,122 +29,201 @@ export default async function Image() {
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "64px 72px",
-          background:
-            "radial-gradient(circle at 85% 15%, rgba(0, 231, 255, 0.16) 0%, transparent 45%), linear-gradient(135deg, #020412 0%, #040826 55%, #061539 100%)",
-          color: "#FFFFFF",
-          fontFamily: "sans-serif",
           position: "relative",
+          overflow: "hidden",
+          background: "#020518",
+          fontFamily: "sans-serif",
         }}
       >
-        {/* Top Badge */}
+        {/* Right Deep Royal Blue Split Panel */}
         <div
           style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "56%",
+            height: "100%",
+            background: "linear-gradient(135deg, #061466 0%, #030936 100%)",
+            clipPath: "polygon(18% 0, 100% 0, 100% 100%, 0% 100%)",
+          }}
+        />
+
+        {/* Top Bar (Logo + Nav Links) */}
+        <div
+          style={{
+            position: "absolute",
+            top: "32px",
+            left: "72px",
+            right: "72px",
             display: "flex",
             alignItems: "center",
-            gap: "12px",
-            background: "rgba(0, 231, 255, 0.12)",
-            border: "1px solid rgba(0, 231, 255, 0.35)",
-            padding: "10px 24px",
-            borderRadius: "999px",
-            alignSelf: "flex-start",
+            justifyContent: "space-between",
+            zIndex: 2,
+          }}
+        >
+          {/* Hexagon Y Badge */}
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "10px",
+              border: "2px solid rgba(255,255,255,0.85)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#FFFFFF",
+              fontSize: "20px",
+              fontWeight: 800,
+            }}
+          >
+            Y
+          </div>
+
+          {/* Nav Items + Contact Pill */}
+          <div style={{ display: "flex", alignItems: "center", gap: "28px" }}>
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "15px" }}>
+              About
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "15px" }}>
+              Experience
+            </span>
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "15px" }}>
+              Projects
+            </span>
+            <div
+              style={{
+                background: "#FFFFFF",
+                color: "#020518",
+                fontSize: "12px",
+                fontWeight: 800,
+                letterSpacing: "1.2px",
+                padding: "8px 16px",
+                borderRadius: "999px",
+              }}
+            >
+              CONTACT ME
+            </div>
+          </div>
+        </div>
+
+        {/* Left Column: Intro, Name, Role & Social Squares */}
+        <div
+          style={{
+            width: "52%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            paddingLeft: "72px",
+            paddingRight: "24px",
+            zIndex: 2,
           }}
         >
           <div
             style={{
-              width: "12px",
-              height: "12px",
-              borderRadius: "50%",
-              background: "#00E7FF",
-            }}
-          />
-          <span
-            style={{
-              fontSize: "20px",
+              fontSize: "22px",
               fontWeight: 700,
-              color: "#00E7FF",
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
+              color: "#38BDF8",
+              marginBottom: "10px",
             }}
           >
-            Full-Stack MERN &amp; Next.js Developer
-          </span>
-        </div>
+            Hi, I am
+          </div>
 
-        {/* Center Title & Description */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <div
             style={{
-              fontSize: "74px",
+              fontSize: "52px",
               fontWeight: 800,
-              lineHeight: 1.08,
-              letterSpacing: "-2px",
+              lineHeight: 1.1,
+              letterSpacing: "-1.5px",
               color: "#FFFFFF",
+              marginBottom: "12px",
             }}
           >
             Youssef Abdeltwab
           </div>
+
           <div
             style={{
-              fontSize: "28px",
-              lineHeight: 1.45,
-              color: "#CBD9FF",
-              maxWidth: "940px",
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "#CBD5E1",
+              marginBottom: "28px",
             }}
           >
-            Architecting scalable full-stack web applications, RESTful APIs, and
-            high-performance cloud platforms with Next.js, TypeScript &amp; React.
+            Full-Stack MERN Web Developer
+          </div>
+
+          {/* Social Icon Squares */}
+          <div style={{ display: "flex", gap: "10px" }}>
+            {["@", "WA", "GH", "in", "TEL"].map((label) => (
+              <div
+                key={label}
+                style={{
+                  width: "38px",
+                  height: "34px",
+                  borderRadius: "7px",
+                  background: "rgba(15, 23, 42, 0.85)",
+                  border: "1px solid rgba(148, 163, 184, 0.25)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#E2E8F0",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                }}
+              >
+                {label}
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Bottom Stack & Domain */}
+        {/* Right Column: Portrait Frame */}
         <div
           style={{
+            width: "48%",
+            height: "100%",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            borderTop: "1px solid rgba(255, 255, 255, 0.14)",
+            justifyContent: "center",
             paddingTop: "28px",
+            paddingRight: "48px",
+            zIndex: 2,
           }}
         >
-          <div style={{ display: "flex", gap: "12px", flexWrap: "nowrap" }}>
-            {[
-              "Next.js",
-              "React",
-              "TypeScript",
-              "Node.js",
-              "Express",
-              "MongoDB",
-              "Prisma",
-            ].map((tech) => (
-              <span
-                key={tech}
-                style={{
-                  fontSize: "19px",
-                  fontWeight: 600,
-                  color: "#E2E8F0",
-                  background: "rgba(255, 255, 255, 0.07)",
-                  padding: "8px 16px",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                }}
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-
-          <span
-            style={{
-              fontSize: "21px",
-              fontWeight: 700,
-              color: "#00E7FF",
-            }}
-          >
-            youssef-abdeltwab.vercel.app
-          </span>
+          {avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt="Youssef Abdeltwab"
+              style={{
+                width: "350px",
+                height: "420px",
+                objectFit: "cover",
+                objectPosition: "center top",
+                borderRadius: "24px",
+                boxShadow: "0 24px 60px rgba(0, 0, 0, 0.55)",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "350px",
+                height: "420px",
+                borderRadius: "24px",
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.18)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#FFFFFF",
+                fontSize: "64px",
+                fontWeight: 800,
+              }}
+            >
+              YA
+            </div>
+          )}
         </div>
       </div>
     ),
