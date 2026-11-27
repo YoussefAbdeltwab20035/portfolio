@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Youssef Abdeltwab | Full-Stack Web Developer";
+export const alt = "Youssef Abdeltwab — Full-Stack MERN Web Developer";
 export const size = {
   width: 1200,
   height: 630,
@@ -12,129 +12,125 @@ export default async function Image() {
     (
       <div
         style={{
-          height: "100%",
           width: "100%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "60px 80px",
-          backgroundColor: "#030712",
+          padding: "64px 72px",
+          background:
+            "radial-gradient(circle at 85% 15%, rgba(0, 231, 255, 0.16) 0%, transparent 45%), linear-gradient(135deg, #020412 0%, #040826 55%, #061539 100%)",
+          color: "#FFFFFF",
           fontFamily: "sans-serif",
           position: "relative",
         }}
       >
-        {/* خلفيات الإضاءة العصرية */}
+        {/* Top Badge */}
         <div
           style={{
-            position: "absolute",
-            top: "-120px",
-            right: "-80px",
-            width: "550px",
-            height: "550px",
-            borderRadius: "9999px",
-            background: "radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(245, 158, 11, 0) 70%)",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            background: "rgba(0, 231, 255, 0.12)",
+            border: "1px solid rgba(0, 231, 255, 0.35)",
+            padding: "10px 24px",
+            borderRadius: "999px",
+            alignSelf: "flex-start",
           }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-120px",
-            left: "-80px",
-            width: "500px",
-            height: "500px",
-            borderRadius: "9999px",
-            background: "radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, rgba(14, 165, 233, 0) 70%)",
-          }}
-        />
-
-        {/* شريط الحالة العلوي */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+        >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "8px 18px",
-              borderRadius: "9999px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
+              width: "12px",
+              height: "12px",
+              borderRadius: "50%",
+              background: "#00E7FF",
+            }}
+          />
+          <span
+            style={{
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#00E7FF",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
             }}
           >
-            <div
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "9999px",
-                backgroundColor: "#10b981",
-              }}
-            />
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "#e2e8f0", letterSpacing: "0.5px" }}>
-              AVAILABLE FOR NEW PROJECTS
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "16px", fontWeight: 700, color: "#94a3b8" }}>
-            <span style={{ color: "#f59e0b" }}>⚡</span> youssef-abdeltwab.dev
-          </div>
+            Full-Stack MERN &amp; Next.js Developer
+          </span>
         </div>
 
-        {/* النصوص الرئيسية */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-          <h1
+        {/* Center Title & Description */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div
             style={{
-              fontSize: "64px",
-              fontWeight: 900,
+              fontSize: "74px",
+              fontWeight: 800,
+              lineHeight: 1.08,
               letterSpacing: "-2px",
-              margin: 0,
-              color: "#ffffff",
-              lineHeight: 1.1,
+              color: "#FFFFFF",
             }}
           >
             Youssef Abdeltwab
-          </h1>
-
-          <div style={{ fontSize: "28px", fontWeight: 600, color: "#f59e0b" }}>
-            Full-Stack Web Developer & Software Engineer
           </div>
-
-          <p style={{ fontSize: "20px", color: "#94a3b8", margin: 0, maxWidth: "850px", lineHeight: 1.5 }}>
-            Architecting scalable web applications, robust Node.js backend systems, and modern React/Next.js interactive interfaces.
-          </p>
+          <div
+            style={{
+              fontSize: "28px",
+              lineHeight: 1.45,
+              color: "#CBD9FF",
+              maxWidth: "940px",
+            }}
+          >
+            Architecting scalable full-stack web applications, RESTful APIs, and
+            high-performance cloud platforms with Next.js, TypeScript &amp; React.
+          </div>
         </div>
 
-        {/* شريط التقنيات السفلي */}
+        {/* Bottom Stack & Domain */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            paddingTop: "24px",
-            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-            width: "100%",
+            borderTop: "1px solid rgba(255, 255, 255, 0.14)",
+            paddingTop: "28px",
           }}
         >
-          <div style={{ display: "flex", gap: "10px" }}>
-            {["Next.js 15", "React", "Node.js", "Express", "MongoDB", "Tailwind"].map((tech) => (
-              <div
+          <div style={{ display: "flex", gap: "12px", flexWrap: "nowrap" }}>
+            {[
+              "Next.js",
+              "React",
+              "TypeScript",
+              "Node.js",
+              "Express",
+              "MongoDB",
+              "Prisma",
+            ].map((tech) => (
+              <span
                 key={tech}
                 style={{
-                  padding: "6px 14px",
-                  borderRadius: "10px",
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  color: "#cbd5e1",
-                  fontSize: "14px",
+                  fontSize: "19px",
                   fontWeight: 600,
+                  color: "#E2E8F0",
+                  background: "rgba(255, 255, 255, 0.07)",
+                  padding: "8px 16px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
                 }}
               >
                 {tech}
-              </div>
+              </span>
             ))}
           </div>
 
-          <div style={{ color: "#64748b", fontSize: "14px", fontWeight: 600 }}>
-            MERN Stack Architecture
-          </div>
+          <span
+            style={{
+              fontSize: "21px",
+              fontWeight: 700,
+              color: "#00E7FF",
+            }}
+          >
+            youssef-abdeltwab.vercel.app
+          </span>
         </div>
       </div>
     ),
