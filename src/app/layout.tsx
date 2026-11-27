@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import SecretAdminModal from "@/components/SecretAdminModal";
 import CursorSpotlight from "@/components/CursorSpotlight";
+import VisitTracker from "@/components/VisitTracker";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -34,6 +35,20 @@ export const metadata: Metadata = {
   },
   description:
     "Portfolio of Youssef Abdeltwab, a Full-Stack MERN Web Developer specializing in Next.js, TypeScript, Node.js, and scalable cloud web architectures.",
+  openGraph: {
+    title: "Youssef Abdeltwab — Full-Stack MERN Web Developer",
+    description:
+      "Portfolio of Youssef Abdeltwab, a Full-Stack MERN Web Developer specializing in Next.js, TypeScript, Node.js, and scalable cloud web architectures.",
+    url: "https://youssef-abdeltwab.vercel.app",
+    siteName: "Youssef Abdeltwab Portfolio",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Youssef Abdeltwab — Full-Stack MERN Web Developer",
+    description:
+      "Portfolio of Youssef Abdeltwab, a Full-Stack MERN Web Developer specializing in Next.js, TypeScript, Node.js, and scalable cloud web architectures.",
+  },
 };
 
 export default function RootLayout({
@@ -55,6 +70,8 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem={false}
         >
+          <VisitTracker />
+
           <div className="hidden lg:block pointer-events-none fixed inset-0 z-0 select-none">
             <CursorSpotlight />
           </div>
