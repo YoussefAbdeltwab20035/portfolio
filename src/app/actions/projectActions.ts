@@ -2,27 +2,12 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { verifyAdminPasskey } from "@/lib/auth";
 
-// كلمة السر الأساسية لضمان عملها بشكل مباشر
-const MASTER_KEY = "Devo";
-
-function verifySecret(key: string): boolean {
-  if (!key) return false;
-
-  const cleanInput = key.trim();
-  const rawEnv = process.env.ADMIN_SECRET_KEY || "";
-  const cleanEnv = rawEnv.replace(/['"]/g, "").trim();
-
-  // التحقق إما بمطابقة MASTER_KEY المباشرة أو المتغير القادم من .env
-  return cleanInput === MASTER_KEY || (cleanEnv !== "" && cleanInput === cleanEnv);
-}
-
-// دالة تنظيف مسار الصورة لضمان عدم حفظ سلاش زائد قبل data:image
 function sanitizeImagePath(rawImage?: string): string {
-  if (!rawImage) return "/projects/placeholder.png";
+  if (!rawImage) return "/wasla.png";
   const trimmed = rawImage.trim();
 
-  // لو الصورة Base64 وفيها سلاش في الأول، نزيل كل ما قبل data:image
   const dataIdx = trimmed.indexOf("data:image");
   if (dataIdx !== -1) {
     return trimmed.substring(dataIdx);
@@ -31,25 +16,31 @@ function sanitizeImagePath(rawImage?: string): string {
   return trimmed;
 }
 
-// 1. إضافة مشروع جديد
 export async function createProjectAction(formData: FormData, secretKey: string) {
   try {
-    if (!verifySecret(secretKey)) {
+    if (!(await verifyAdminPasskey(secretKey))) {
       return { success: false, error: "Unauthorized: Invalid Secret Passkey." };
     }
 
     const title = (formData.get("title") as string)?.trim();
-    const subtitle = (formData.get("subtitle") as string)?.trim() || "Full-Stack Project";
+    const subtitle =
+      (formData.get("subtitle") as string)?.trim() || "Full-Stack Project";
     const description = (formData.get("description") as string)?.trim();
-    const longDescription = (formData.get("longDescription") as string)?.trim() || undefined;
+    const longDescription =
+      (formData.get("longDescription") as string)?.trim() || undefined;
     const rawImage = (formData.get("image") as string)?.trim();
     const image = sanitizeImagePath(rawImage);
     const techStackRaw = (formData.get("techStackRaw") as string)?.trim();
+    const keyFeaturesRaw =
+      (formData.get("keyFeaturesRaw") as string)?.trim() || undefined;
     const githubUrl = (formData.get("githubUrl") as string)?.trim() || undefined;
     const liveUrl = (formData.get("liveUrl") as string)?.trim() || undefined;
 
     if (!title || !description || !techStackRaw) {
-      return { success: false, error: "Title, description, and tech stack are required." };
+      return {
+        success: false,
+        error: "Title, description, and tech stack tags are required.",
+      };
     }
 
     const count = await prisma.project.count();
@@ -62,6 +53,7 @@ export async function createProjectAction(formData: FormData, secretKey: string)
         longDescription,
         image,
         techStackRaw,
+        keyFeaturesRaw,
         githubUrl,
         liveUrl,
         index: count,
@@ -79,10 +71,65 @@ export async function createProjectAction(formData: FormData, secretKey: string)
   }
 }
 
-// 2. حذف مشروع من قاعدة البيانات
+export async function updateProjectAction(
+  id: string,
+  formData: FormData,
+  secretKey: string
+) {
+  try {
+    if (!(await verifyAdminPasskey(secretKey))) {
+      return { success: false, error: "Unauthorized: Invalid Secret Passkey." };
+    }
+
+    const title = (formData.get("title") as string)?.trim();
+    const subtitle =
+      (formData.get("subtitle") as string)?.trim() || "Full-Stack Project";
+    const description = (formData.get("description") as string)?.trim();
+    const longDescription =
+      (formData.get("longDescription") as string)?.trim() || undefined;
+    const rawImage = (formData.get("image") as string)?.trim();
+    const techStackRaw = (formData.get("techStackRaw") as string)?.trim();
+    const keyFeaturesRaw =
+      (formData.get("keyFeaturesRaw") as string)?.trim() || undefined;
+    const githubUrl = (formData.get("githubUrl") as string)?.trim() || null;
+    const liveUrl = (formData.get("liveUrl") as string)?.trim() || null;
+
+    if (!id || !title || !description || !techStackRaw) {
+      return {
+        success: false,
+        error: "Title, description, and tech stack tags are required.",
+      };
+    }
+
+    await prisma.project.update({
+      where: { id },
+      data: {
+        title,
+        subtitle,
+        description,
+        ...(longDescription !== undefined ? { longDescription } : {}),
+        ...(rawImage ? { image: sanitizeImagePath(rawImage) } : {}),
+        techStackRaw,
+        ...(keyFeaturesRaw !== undefined ? { keyFeaturesRaw } : {}),
+        githubUrl,
+        liveUrl,
+      },
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating project:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update project.",
+    };
+  }
+}
+
 export async function deleteProjectAction(id: string, secretKey: string) {
   try {
-    if (!verifySecret(secretKey)) {
+    if (!(await verifyAdminPasskey(secretKey))) {
       return { success: false, error: "Unauthorized: Invalid Secret Passkey." };
     }
 
@@ -101,10 +148,9 @@ export async function deleteProjectAction(id: string, secretKey: string) {
   }
 }
 
-// 3. جلب المشاريع المسجلة
 export async function getAdminProjectsAction(secretKey: string) {
   try {
-    if (!verifySecret(secretKey)) {
+    if (!(await verifyAdminPasskey(secretKey))) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -117,7 +163,10 @@ export async function getAdminProjectsAction(secretKey: string) {
     console.error("Prisma Fetch Error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch projects from database.",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch projects from database.",
     };
   }
 }

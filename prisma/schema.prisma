@@ -22,3 +22,52 @@ model Project {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+model SiteProfile {
+  id               String   @id @default("main")
+  name             String
+  role             String
+  title            String
+  bio              String
+  availability     String
+  experienceSince  String
+  workMode         String
+  location         String
+  phone            String
+  whatsapp         String
+  email            String
+  github           String
+  linkedin         String
+  logoUrl          String   @default("")
+  heroAvatarUrl    String   @default("/photo.png")
+  aboutAvatarUrl   String   @default("/photo.png")
+  enabledIconsRaw  String   @default("[\"email\",\"whatsapp\",\"github\",\"linkedin\",\"phone\"]")
+  aboutHeading     String
+  aboutDescription String
+  aboutPhilosophy  String
+  vision           String
+  mission          String
+  aboutPortfolio   String
+  customLinksRaw   String   @default("[]")
+  categoriesRaw    String   @default("[]")
+  adminPasskey     String?
+  recoveryPhone    String?
+  recoveryPin      String?
+  extraSectionsRaw String  @default("[]")
+  heroFitMode      String  @default("cover")
+  heroFrameWidth   Int      @default(0)
+  heroFrameHeight  Int      @default(0)
+  updatedAt        DateTime @updatedAt
+}
+
+model Experience {
+  id           String   @id @default(cuid())
+  role         String
+  organization String
+  badge        String
+  description  String
+  skillsRaw    String
+  index        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

@@ -46,9 +46,12 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
 
-  // 5️⃣ تسريع شحن مكتبات الأيقونات والأنيميشن (Tree Shaking & Package Optimization)
+  // 5️⃣ تسريع شحن مكتبات الأيقونات والأنيميشن + رفع الحد الأقصى لحجم بيانات Server Actions لدعم الصور
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
   },
 
   // 6️⃣ التحكم في مكان مؤشر أدوات التطوير

@@ -1,15 +1,49 @@
 "use client";
 
 import { useState, useEffect, useSyncExternalStore } from "react";
-import Image from "next/image";
 import { useTheme } from "next-themes";
 import { Moon, Sun, Menu, X } from "lucide-react";
-import { PORTFOLIO_DATA } from "@/data/portfolioData";
+import { DEFAULT_SITE_PROFILE, SiteProfileData } from "@/lib/siteDefaults";
 
 const emptySubscribe = () => () => {};
 
-export default function Navbar() {
-  const { personal } = PORTFOLIO_DATA;
+interface NavbarProps {
+  profile?: SiteProfileData;
+}
+
+function BrandMonogram({ className = "w-10 h-10" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 44 44"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M22 3L38 12.2V31.8L22 41L6 31.8V12.2L22 3Z"
+        stroke="currentColor"
+        strokeWidth="2.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14.5 14.5L22 22.5M29.5 14.5L22 22.5M22 22.5V33"
+        stroke="#00A4FF"
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15.5 27.5H28.5"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export default function Navbar({ profile = DEFAULT_SITE_PROFILE }: NavbarProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   const mounted = useSyncExternalStore(
@@ -24,14 +58,14 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 25);
+      setScrolled(window.scrollY > 30);
 
       if (window.scrollY < 150) {
         setActiveSection("home");
         return;
       }
 
-      const sections = ["about", "projects", "faq", "experience", "contact"];
+      const sections = ["about", "experience", "projects", "contact"];
       const scrollPosition = window.scrollY + 250;
 
       for (const sectionId of sections) {
@@ -89,122 +123,138 @@ export default function Navbar() {
   const isDarkMode = mounted ? (resolvedTheme || theme) === "dark" : true;
 
   const navItems = [
-    { label: "Home", id: "home" },
     { label: "About", id: "about" },
+    { label: "Experience", id: "experience" },
     { label: "Projects", id: "projects" },
-    { label: "Guarantees", id: "faq" },
-    { label: "Milestones", id: "experience" },
-    { label: "Contact", id: "contact" },
   ];
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-[9999] transition-colors duration-200 ${
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-200 ${
           scrolled
-            ? "bg-white dark:bg-[#07090E] border-b border-slate-200 dark:border-white/10 py-3 shadow-md"
-            : "bg-transparent py-4 sm:py-5"
+            ? "bg-white/95 dark:bg-[#020412]/95 backdrop-blur-xl border-b border-[#04044A]/10 dark:border-[#00A4FF]/20 py-3.5 shadow-md"
+            : "bg-transparent py-6"
         }`}
       >
-        <div className="max-w-[1550px] mx-auto px-4 sm:px-6 flex items-center justify-between">
-          {/* Logo */}
+        <div className="max-w-[1440px] mx-auto px-6 sm:px-12 flex items-center justify-between">
+          {/* Logo (Custom uploaded logo from dashboard OR crisp geometric monogram) */}
           <button
             type="button"
             onPointerDown={(e) => handleNavClick("home", e)}
-            aria-label="Go to home"
-            className="flex items-center gap-3 group cursor-pointer shrink-0 bg-transparent border-0 p-0 text-left select-none"
+            aria-label="Go to top"
+            className="flex items-center group cursor-pointer shrink-0 bg-transparent border-0 p-0 text-left select-none text-[#04044A] dark:text-white transition-colors"
           >
-            <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-slate-200 dark:border-white/20 bg-slate-900 shadow-sm group-hover:border-amber-500 transition-colors pointer-events-none">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={36}
-                height={36}
-                priority
-                className="w-full h-full object-cover"
+            {profile.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.logoUrl}
+                alt={profile.name}
+                className="h-10 w-auto max-w-[140px] object-contain transition-transform duration-300 group-hover:scale-105"
               />
-            </div>
-            <span className="font-bold text-slate-900 dark:text-[#EAE5D9] tracking-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors hidden sm:inline text-sm pointer-events-none">
-              {personal.name}
-            </span>
+            ) : (
+              <BrandMonogram className="w-10 h-10 transition-transform duration-300 group-hover:scale-105" />
+            )}
           </button>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-black/60 px-2 py-1 rounded-full border border-slate-200 dark:border-white/15 shadow-sm">
-            {navItems.map((item) => {
-              const isActive = activeSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onPointerDown={(e) => handleNavClick(item.id, e)}
-                  aria-label={`Navigate to ${item.label}`}
-                  className={`relative px-4 py-1.5 text-xs font-semibold transition-colors duration-150 rounded-full cursor-pointer select-none border-0 ${
-                    isActive
-                      ? "text-slate-900 dark:text-[#0A0D14] bg-white dark:bg-[#EAE5D9] shadow-sm"
-                      : "text-slate-600 hover:text-slate-950 dark:text-[#D8D3C8]/70 dark:hover:text-white bg-transparent"
-                  }`}
-                >
-                  <span className="pointer-events-none">{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+          {/* Desktop Right Links */}
+          <div className="hidden md:flex items-center gap-8">
+            <nav className="flex items-center gap-8">
+              {navItems.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onPointerDown={(e) => handleNavClick(item.id, e)}
+                    className={`text-xs font-bold tracking-wide transition-colors cursor-pointer bg-transparent border-0 ${
+                      scrolled
+                        ? isActive
+                          ? "text-[#00A4FF]"
+                          : "text-[#04044A] dark:text-white/85 hover:text-[#00A4FF]"
+                        : isActive
+                        ? "text-[#00E7FF]"
+                        : "text-white hover:text-[#00E7FF]"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Theme Button */}
+            {/* Pill CTA Button ("CONTACT ME") */}
+            <button
+              type="button"
+              onPointerDown={(e) => handleNavClick("contact", e)}
+              className={`px-5 py-2.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer ${
+                scrolled
+                  ? "bg-[#04044A] text-white dark:bg-white dark:text-[#020412] hover:bg-[#00A4FF] dark:hover:bg-[#00E7FF]"
+                  : "bg-white text-[#04044A] hover:bg-[#00E7FF] hover:text-[#020412]"
+              }`}
+            >
+              Contact Me
+            </button>
+
+            {/* Theme Toggle */}
             <button
               type="button"
               onPointerDown={handleToggleTheme}
               aria-label="Toggle Theme"
-              className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#151921] hover:bg-slate-300 dark:hover:bg-[#1E232E] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-800 dark:text-[#D8D3C8] shadow-sm cursor-pointer select-none"
+              className="w-9 h-9 rounded-full bg-[#04044A]/90 hover:bg-[#000675] border border-[#00A4FF]/35 flex items-center justify-center text-white shadow-sm cursor-pointer"
             >
               {isDarkMode ? (
-                <Sun className="w-5 h-5 text-amber-400 pointer-events-none" />
+                <Sun className="w-4 h-4 text-[#00E7FF]" />
               ) : (
-                <Moon className="w-5 h-5 text-slate-700 pointer-events-none" />
+                <Moon className="w-4 h-4 text-[#00A4FF]" />
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Controls */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              type="button"
+              onPointerDown={handleToggleTheme}
+              aria-label="Toggle Theme"
+              className="w-9 h-9 rounded-full bg-[#04044A] border border-[#00A4FF]/35 flex items-center justify-center text-white cursor-pointer"
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-[#00E7FF]" />
+              ) : (
+                <Moon className="w-4 h-4 text-[#00A4FF]" />
               )}
             </button>
 
-            {/* Mobile Menu Button */}
             <button
               type="button"
               onPointerDown={handleToggleMenu}
-              aria-label={mobileMenuOpen ? "Close Navigation Menu" : "Open Navigation Menu"}
-              className="md:hidden w-10 h-10 rounded-full bg-slate-200 dark:bg-[#151921] hover:bg-slate-300 dark:hover:bg-[#1E232E] border border-slate-300 dark:border-white/20 flex items-center justify-center text-slate-800 dark:text-[#D8D3C8] shadow-sm cursor-pointer select-none"
+              aria-label="Toggle Menu"
+              className="w-9 h-9 rounded-full bg-[#04044A] border border-[#00A4FF]/35 flex items-center justify-center text-white cursor-pointer"
             >
               {mobileMenuOpen ? (
-                <X className="w-5 h-5 text-amber-500 pointer-events-none" />
+                <X className="w-4 h-4 text-[#00E7FF]" />
               ) : (
-                <Menu className="w-5 h-5 text-slate-900 dark:text-white pointer-events-none" />
+                <Menu className="w-4 h-4 text-white" />
               )}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-[64px] left-0 right-0 z-[9999] bg-white dark:bg-[#07090E] border-b border-slate-200 dark:border-white/10 p-4 shadow-2xl flex flex-col gap-2">
-          {navItems.map((item) => {
-            const isActive = activeSection === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onPointerDown={(e) => handleNavClick(item.id, e)}
-                aria-label={`Navigate to ${item.label}`}
-                className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-semibold transition-colors cursor-pointer select-none border-0 ${
-                  isActive
-                    ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold"
-                    : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 bg-transparent"
-                }`}
-              >
-                <span className="pointer-events-none">{item.label}</span>
-              </button>
-            );
-          })}
+        <div className="md:hidden fixed top-[72px] left-0 right-0 z-[9999] bg-[#04044A] border-b border-[#00A4FF]/25 p-4 shadow-2xl flex flex-col gap-2">
+          {[...navItems, { label: "Contact Me", id: "contact" }].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onPointerDown={(e) => handleNavClick(item.id, e)}
+              className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold text-white hover:bg-[#000675] transition-colors cursor-pointer"
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       )}
     </>

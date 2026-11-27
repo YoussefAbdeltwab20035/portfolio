@@ -3,25 +3,72 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f4f8ff;
+  --foreground: #04044a;
+
+  /* Brand Palette */
+  --royal-blue: #000675;
+  --navy: #04044a;
+  --sky-blue: #00a4ff;
+  --neon-blue: #00e7ff;
+  --pure-white: #ffffff;
+
+  /* Semantic Surface Tokens (Light Mode) */
+  --bg-page: #f4f8ff;
+  --bg-surface: #ffffff;
+  --bg-subtle: #eaf2ff;
+  --bg-sand: #dceaff;
+  --border-default: rgba(4, 4, 74, 0.12);
+
+  /* Text & Brand Tokens (Light Mode) */
+  --text-primary: #04044a;
+  --text-secondary: #334173;
+  --text-muted: #64749c;
+  --color-primary: #000675;
+  --color-on-primary: #ffffff;
+
+  /* Accent Tokens */
+  --accent: #00a4ff;
+  --accent-soft: rgba(0, 164, 255, 0.12);
+  --olive: #0077cc;
+  --olive-soft: rgba(0, 164, 255, 0.12);
 }
 
 .dark {
-  --background: #0b0f17;
-  --foreground: #f8fafc;
+  --background: #020412;
+  --foreground: #ffffff;
+
+  /* Semantic Surface Tokens (Dark Mode - Deep Navy & Royal Blue) */
+  --bg-page: #020412;
+  --bg-surface: #04044a;
+  --bg-subtle: #060938;
+  --bg-sand: #000675;
+  --border-default: rgba(0, 164, 255, 0.22);
+
+  /* Text & Brand Tokens (Dark Mode) */
+  --text-primary: #ffffff;
+  --text-secondary: #cbd9ff;
+  --text-muted: #7f95cc;
+  --color-primary: #00a4ff;
+  --color-on-primary: #020412;
+
+  /* Accent Tokens */
+  --accent: #00e7ff;
+  --accent-soft: rgba(0, 231, 255, 0.14);
+  --olive: #00e7ff;
+  --olive-soft: rgba(0, 231, 255, 0.14);
 }
 
-/* فرض السماح بالأحداث والتمرير الطبيعي على كافة المستويات */
 html {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   pointer-events: auto !important;
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
@@ -29,7 +76,6 @@ body {
   touch-action: pan-x pan-y !important;
 }
 
-/* ضمان قابلية النقر والاستجابة الفورية لكافة العناصر التفاعلية */
 button,
 a,
 input,
@@ -38,15 +84,138 @@ textarea,
 [role="button"] {
   pointer-events: auto !important;
   touch-action: manipulation !important;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
+  -webkit-tap-highlight-color: rgba(0, 164, 255, 0.1);
   cursor: pointer;
-  user-select: none;
 }
 
-/* إزالة أي إعاقة للأحداث من داخل الأيقونات والرسومات */
 svg,
 svg * {
   pointer-events: none !important;
+}
+
+/* Brand Utility Gradients */
+.bg-electric-gradient {
+  background: linear-gradient(135deg, #00e7ff 0%, #00a4ff 45%, #000675 100%);
+}
+
+.bg-navy-panel {
+  background: linear-gradient(145deg, rgba(4, 4, 74, 0.92) 0%, rgba(0, 6, 117, 0.65) 100%);
+}
+
+/* Shared Typography & Layout Helpers */
+.site-section {
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+}
+
+.site-container {
+  width: 100%;
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.type-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.type-h2 {
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+.type-h3 {
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.type-h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.type-body {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.type-caption {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.type-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Shared Button System */
+.btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-md {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.85rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00a4ff 0%, #00e7ff 100%);
+  color: #020412;
+  border: 1px solid rgba(0, 231, 255, 0.5);
+  box-shadow: 0 8px 24px -6px rgba(0, 164, 255, 0.45);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-sand {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.btn-sand:hover {
+  border-color: var(--accent);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  color: var(--accent);
+}
+
+/* Hide Scrollbar Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom Scrollbar */
@@ -57,73 +226,9 @@ svg * {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.3);
+  background: rgba(0, 164, 255, 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.5);
-}@import "tailwindcss";
-
-@variant dark (&:where(.dark, .dark *));
-
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-}
-
-.dark {
-  --background: #0b0f17;
-  --foreground: #f8fafc;
-}
-
-/* فرض السماح بالأحداث والتمرير الطبيعي على كافة المستويات */
-html {
-  background-color: var(--background);
-  color: var(--foreground);
-  pointer-events: auto !important;
-}
-
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  min-height: 100vh;
-  width: 100%;
-  overflow-x: hidden;
-  pointer-events: auto !important;
-  touch-action: pan-x pan-y !important;
-}
-
-/* ضمان قابلية النقر والاستجابة الفورية لكافة العناصر التفاعلية */
-button,
-a,
-input,
-select,
-textarea,
-[role="button"] {
-  pointer-events: auto !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  user-select: none;
-}
-
-/* إزالة أي إعاقة للأحداث من داخل الأيقونات والرسومات */
-svg,
-svg * {
-  pointer-events: none !important;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.3);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.5);
+  background: rgba(0, 231, 255, 0.55);
 }

@@ -21,19 +21,19 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#0B0F17" },
+    { media: "(prefers-color-scheme: light)", color: "#F4F8FF" },
+    { media: "(prefers-color-scheme: dark)", color: "#020412" },
   ],
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://youssef-abdeltwab.vercel.app"),
   title: {
-    default: "Youssef Abdeltwab — Full-Stack Web Developer",
+    default: "Youssef Abdeltwab — Full-Stack MERN Web Developer",
     template: "%s | Youssef Abdeltwab",
   },
   description:
-    "Portfolio of Youssef Abdeltwab, a Full-Stack Web Developer specializing in MERN Stack, Next.js, TypeScript, and modern scalable web architectures.",
+    "Portfolio of Youssef Abdeltwab, a Full-Stack MERN Web Developer specializing in Next.js, TypeScript, Node.js, and scalable cloud web architectures.",
 };
 
 export default function RootLayout({
@@ -47,7 +47,9 @@ export default function RootLayout({
       className={`${jakarta.variable} ${jetbrains.variable}`}
       suppressHydrationWarning
     >
-      <body className={`${jakarta.className} font-sans antialiased bg-slate-50 dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 overflow-x-hidden`}>
+      <body
+        className={`${jakarta.className} font-sans antialiased bg-[#F4F8FF] dark:bg-[#020412] text-[#04044A] dark:text-white overflow-x-hidden`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

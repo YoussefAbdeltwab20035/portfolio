@@ -1,71 +1,62 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Code2, 
-  Layers, 
-  Database, 
-  Zap, 
-  ShieldCheck, 
-  Clock, 
-  Sparkles 
+import {
+  Code2,
+  Server,
+  Database,
+  Cloud,
+  Terminal,
+  Layers,
 } from "lucide-react";
-import { PORTFOLIO_DATA } from "@/data/portfolioData";
+import { DEFAULT_SITE_PROFILE, SiteProfileData } from "@/lib/siteDefaults";
 
-const TABS = [
-  { id: "story", label: "Overview" },
-  { id: "deliverables", label: "What I Build For You" },
-  { id: "guarantees", label: "Client Guarantees" },
+const BASE_TABS = [
+  { id: "overview", label: "Overview & Experience" },
+  { id: "stack", label: "Core Tech Stack" },
 ];
 
-export default function About() {
-  const { personal } = PORTFOLIO_DATA;
-  const [activeTab, setActiveTab] = useState("story");
+interface AboutProps {
+  profile?: SiteProfileData;
+}
+
+export default function About({ profile = DEFAULT_SITE_PROFILE }: AboutProps) {
+  const [activeTab, setActiveTab] = useState("overview");
+
+  const hasExtra = (profile.extraSections || []).length > 0;
+  const tabs = hasExtra
+    ? [...BASE_TABS, { id: "extra", label: "More Highlights" }]
+    : BASE_TABS;
+
+  const currentTab =
+    activeTab === "extra" && !hasExtra ? "overview" : activeTab;
 
   return (
-    <section 
-      id="about" 
-      className="relative w-full py-8 sm:py-16 px-3 sm:px-6 max-w-[1550px] mx-auto scroll-mt-20 overflow-hidden transition-colors duration-300 pointer-events-auto"
+    <section
+      id="about"
+      className="relative w-full py-12 sm:py-20 px-4 sm:px-8 max-w-[1440px] mx-auto scroll-mt-20 overflow-hidden transition-colors duration-300 pointer-events-auto"
     >
-      <div className="relative w-full rounded-[24px] sm:rounded-[44px] overflow-hidden bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-white/[0.12] shadow-sm dark:shadow-[0_25px_80px_rgba(0,0,0,0.7)] p-4 sm:p-10 lg:p-14 flex flex-col justify-between pointer-events-auto">
-        
-        {/* ترويسة القسم */}
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5 sm:gap-4 w-full pb-4 sm:pb-8 border-b border-slate-100 dark:border-white/[0.08]">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-amber-500/30 bg-slate-950 p-1 flex items-center justify-center shadow-sm shrink-0">
-              <Image
-                src="/logo.png"
-                alt="Youssef Icon"
-                width={40}
-                height={40}
-                priority
-                className="w-full h-full object-contain"
-              />
-            </div>
+      <div className="relative w-full rounded-[28px] sm:rounded-[40px] overflow-hidden bg-white dark:bg-[#04044A] border border-[#04044A]/15 dark:border-[#00A4FF]/25 shadow-sm dark:shadow-[0_25px_80px_rgba(0,6,117,0.45)] p-6 sm:p-10 lg:p-14 flex flex-col justify-between pointer-events-auto">
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#00A4FF]/15 rounded-full blur-[120px] pointer-events-none" />
 
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-black/40 backdrop-blur-xl border border-slate-200 dark:border-white/15 text-[10px] sm:text-xs font-mono text-slate-800 dark:text-white/90 shadow-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="tracking-wide uppercase">Engineering Profile // 2026</span>
-            </div>
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full pb-6 border-b border-[#04044A]/10 dark:border-[#00A4FF]/15">
+          <div className="flex items-center gap-2.5 text-[#0077CC] dark:text-[#00E7FF] font-mono text-xs font-bold uppercase tracking-widest">
+            <Terminal className="w-4 h-4" />
+            <span>About &amp; Engineering Expertise</span>
           </div>
 
-          {/* شريط التبويبات المتجاوب */}
-          <div className="flex items-center gap-1 p-1 rounded-full bg-slate-100 dark:bg-black/40 backdrop-blur-xl border border-slate-200 dark:border-white/15 w-full sm:w-auto overflow-x-auto no-scrollbar">
-            {TABS.map((tab) => {
-              const isActive = activeTab === tab.id;
+          <div className="flex flex-wrap items-center gap-1 p-1 rounded-full bg-[#EAF2FF] dark:bg-[#020412]/70 border border-[#00A4FF]/25 w-full sm:w-auto">
+            {tabs.map((tab) => {
+              const isActive = currentTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-medium transition-all duration-300 cursor-pointer whitespace-nowrap flex-1 sm:flex-initial text-center ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 cursor-pointer flex-1 sm:flex-initial text-center ${
                     isActive
-                      ? "bg-slate-900 text-white dark:bg-[#EAE5D9] dark:text-[#0A0D14] font-bold shadow-md"
-                      : "text-slate-600 dark:text-[#D8D3C8]/70 hover:text-slate-950 dark:hover:text-white"
+                      ? "bg-gradient-to-r from-[#00A4FF] to-[#00E7FF] text-[#020412] font-bold shadow-md"
+                      : "text-[#04044A]/75 dark:text-[#CBD9FF]/80 hover:text-[#000675] dark:hover:text-white"
                   }`}
                   type="button"
                 >
@@ -76,142 +67,152 @@ export default function About() {
           </div>
         </div>
 
-        {/* منطقة المحتوى والصورة */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center pt-5 sm:pt-8">
-          
-          <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-6 text-left">
-            <div>
-              <h2 className="text-xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-[#EAE5D9] tracking-tight leading-[1.2]">
-                Turning business goals into <span className="font-light italic text-amber-600 dark:text-amber-400">scalable web products.</span>
-              </h2>
-            </div>
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center pt-8">
+          <div className="lg:col-span-7 flex flex-col gap-5 text-left">
+            <h2 className="text-2xl sm:text-4xl lg:text-[2.65rem] font-bold text-[#04044A] dark:text-white tracking-tight leading-[1.18]">
+              {profile.aboutHeading}
+            </h2>
 
             <AnimatePresence mode="wait">
-              {activeTab === "story" && (
+              {currentTab === "overview" && (
                 <motion.div
-                  key="story"
+                  key="overview"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-3"
+                  transition={{ duration: 0.2 }}
+                  className="space-y-4"
                 >
-                  <p className="text-slate-700 dark:text-[#D8D3C8] text-xs sm:text-sm font-normal leading-relaxed">
-                    I&apos;m <span className="text-slate-950 dark:text-white font-semibold">{personal.name}</span>, a Full-Stack Engineer focused on building robust, high-performance web applications that help businesses scale, convert visitors, and automate operations.
+                  <p className="text-[#334173] dark:text-[#CBD9FF] text-sm sm:text-base leading-relaxed">
+                    {profile.aboutDescription}
                   </p>
-                  <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-xs sm:text-sm leading-relaxed">
-                    From custom dashboards and SaaS platforms to fast customer-facing interfaces, every solution is built with production-grade reliability, data security, and seamless user experiences.
+                  <p className="text-[#64749C] dark:text-[#CBD9FF]/80 text-xs sm:text-sm leading-relaxed">
+                    {profile.aboutPhilosophy}
                   </p>
 
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2">
-                    <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-center sm:text-left">
-                      <span className="text-slate-900 dark:text-[#EAE5D9] font-bold text-xs sm:text-base block sm:inline">MERN</span>
-                      <p className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400/90 font-mono mt-0.5">Stack Core</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                      <span className="text-[#04044A] dark:text-white font-extrabold text-sm sm:text-base block">
+                        Full-Stack MERN
+                      </span>
+                      <p className="text-xs text-[#0077CC] dark:text-[#00E7FF] font-mono mt-1">
+                        End-to-End Architecture
+                      </p>
                     </div>
-                    <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-center sm:text-left">
-                      <span className="text-slate-900 dark:text-[#EAE5D9] font-bold text-xs sm:text-base block sm:inline">Next.js</span>
-                      <p className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400/90 font-mono mt-0.5">Speed & SEO</p>
+                    <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                      <span className="text-[#04044A] dark:text-white font-extrabold text-sm sm:text-base block">
+                        Next.js &amp; TS
+                      </span>
+                      <p className="text-xs text-[#0077CC] dark:text-[#00E7FF] font-mono mt-1">
+                        SSR, SEO &amp; Performance
+                      </p>
                     </div>
-                    <div className="p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-center sm:text-left">
-                      <span className="text-slate-900 dark:text-[#EAE5D9] font-bold text-xs sm:text-base block sm:inline">100%</span>
-                      <p className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-400/90 font-mono mt-0.5">Ownership</p>
+                    <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                      <span className="text-[#04044A] dark:text-white font-extrabold text-sm sm:text-base block">
+                        REST &amp; Databases
+                      </span>
+                      <p className="text-xs text-[#0077CC] dark:text-[#00E7FF] font-mono mt-1">
+                        Prisma, SQL &amp; MongoDB
+                      </p>
                     </div>
                   </div>
                 </motion.div>
               )}
 
-              {activeTab === "deliverables" && (
+              {currentTab === "stack" && (
                 <motion.div
-                  key="deliverables"
+                  key="stack"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3"
+                  transition={{ duration: 0.2 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3.5"
                 >
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Code2 className="w-4 h-4 text-amber-600 dark:text-amber-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">Custom Web Applications</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Full-stack web products built for scale, performance, and reliability.</p>
+                  <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                    <Code2 className="w-4 h-4 text-[#00A4FF] dark:text-[#00E7FF] mb-1.5" />
+                    <h4 className="text-[#04044A] dark:text-white text-sm font-bold">
+                      Frontend Engineering
+                    </h4>
+                    <p className="text-[#334173] dark:text-[#CBD9FF]/85 text-xs mt-1 leading-relaxed">
+                      {profile.vision}
+                    </p>
                   </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Layers className="w-4 h-4 text-amber-600 dark:text-amber-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">SaaS & Admin Dashboards</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Role-based controls, secure authentication, and real-time analytics.</p>
+                  <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                    <Server className="w-4 h-4 text-[#00A4FF] dark:text-[#00E7FF] mb-1.5" />
+                    <h4 className="text-[#04044A] dark:text-white text-sm font-bold">
+                      Backend &amp; Security
+                    </h4>
+                    <p className="text-[#334173] dark:text-[#CBD9FF]/85 text-xs mt-1 leading-relaxed">
+                      {profile.mission}
+                    </p>
                   </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Database className="w-4 h-4 text-amber-600 dark:text-amber-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">API & Database Design</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Clean database schemas and secure endpoints that respond in milliseconds.</p>
+                  <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                    <Database className="w-4 h-4 text-[#00A4FF] dark:text-[#00E7FF] mb-1.5" />
+                    <h4 className="text-[#04044A] dark:text-white text-sm font-bold">
+                      Database Architecture
+                    </h4>
+                    <p className="text-[#334173] dark:text-[#CBD9FF]/85 text-xs mt-1 leading-relaxed">
+                      MongoDB Atlas, Aggregation Pipelines, PostgreSQL (Neon),
+                      Prisma ORM &amp; Indexing.
+                    </p>
                   </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">Speed & UX Optimization</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Mobile-first layouts optimized for fast load times and high conversions.</p>
+                  <div className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25">
+                    <Cloud className="w-4 h-4 text-[#00A4FF] dark:text-[#00E7FF] mb-1.5" />
+                    <h4 className="text-[#04044A] dark:text-white text-sm font-bold">
+                      Cloud, DevOps &amp; SEO
+                    </h4>
+                    <p className="text-[#334173] dark:text-[#CBD9FF]/85 text-xs mt-1 leading-relaxed">
+                      Git/GitHub CI/CD, Vercel, Render, Linux CLI, Technical SEO
+                      &amp; Search Console.
+                    </p>
                   </div>
                 </motion.div>
               )}
 
-              {activeTab === "guarantees" && (
+              {currentTab === "extra" && (
                 <motion.div
-                  key="guarantees"
+                  key="extra"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3"
+                  transition={{ duration: 0.2 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3.5"
                 >
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">Complete Code Ownership</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">You get 100% full rights and access to the clean source code repository.</p>
-                  </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">Direct Communication</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Fast updates and milestone demos without project management layers.</p>
-                  </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">Production Ready</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Deployed live with zero-downtime architecture and proper documentation.</p>
-                  </div>
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10">
-                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-1" />
-                    <h4 className="text-slate-900 dark:text-white text-xs sm:text-sm font-semibold">Post-Launch Support</h4>
-                    <p className="text-slate-600 dark:text-[#D8D3C8]/70 text-[11px] sm:text-xs mt-0.5">Technical handover and maintenance support for a smooth launch.</p>
-                  </div>
+                  {(profile.extraSections || []).map((sec) => (
+                    <div
+                      key={sec.id}
+                      className="p-4 rounded-2xl bg-[#EAF2FF] dark:bg-[#000675]/65 border border-[#00A4FF]/25"
+                    >
+                      <Layers className="w-4 h-4 text-[#00A4FF] dark:text-[#00E7FF] mb-1.5" />
+                      <h4 className="text-[#04044A] dark:text-white text-sm font-bold">
+                        {sec.title}
+                      </h4>
+                      {sec.subtitle && (
+                        <p className="text-[11px] font-mono text-[#0077CC] dark:text-[#00E7FF] mt-0.5">
+                          {sec.subtitle}
+                        </p>
+                      )}
+                      <p className="text-[#334173] dark:text-[#CBD9FF]/85 text-xs mt-1.5 leading-relaxed whitespace-pre-line">
+                        {sec.content}
+                      </p>
+                    </div>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* حاوية الصورة الشخصية المتناسقة */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end w-full">
-            <div className="relative w-full max-w-[280px] sm:max-w-[360px] h-[340px] sm:h-[450px] rounded-[24px] sm:rounded-[28px] overflow-hidden border border-slate-200 dark:border-white/15 shadow-xl bg-slate-100 dark:bg-[#0F131C]">
-              <Image
-                src={personal.avatarUrl || "/about-photo.png"}
-                alt={personal.name}
-                fill
-                priority
-                sizes="(max-width: 768px) 280px, 360px"
-                className="object-cover object-top filter contrast-[1.04] brightness-95"
+            <div className="relative w-full max-w-[300px] sm:max-w-[360px] h-[360px] sm:h-[440px] rounded-[28px] overflow-hidden border border-[#00A4FF]/35 shadow-[0_20px_50px_rgba(0,6,117,0.45)] bg-[#000675]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={profile.aboutAvatarUrl || "/photo.png"}
+                alt={profile.name}
+                className="w-full h-full object-cover object-top"
               />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 dark:from-[#0A0D14] via-transparent to-transparent pointer-events-none" />
-
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 p-2.5 sm:p-3 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 flex items-center justify-between">
-                <div>
-                  <h4 className="text-white text-xs font-bold">{personal.name}</h4>
-                  <p className="text-amber-400 font-mono text-[10px] sm:text-[11px]">Full-Stack Developer</p>
-                </div>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
-              </div>
             </div>
           </div>
-
         </div>
-
       </div>
     </section>
   );
